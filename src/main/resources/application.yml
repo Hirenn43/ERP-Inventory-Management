@@ -1,0 +1,22 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: inventory-management
+  profiles:
+    active: dev
+  jackson:
+    default-property-inclusion: non_null
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B59}
+    access-token-expiration-ms: ${JWT_ACCESS_EXPIRATION:3600000}      # 1 hour
+    refresh-token-expiration-ms: ${JWT_REFRESH_EXPIRATION:604800000} # 7 days
