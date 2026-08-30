@@ -8,6 +8,10 @@ spring:
     active: dev
   jackson:
     default-property-inclusion: non_null
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
 
 springdoc:
   swagger-ui:
@@ -20,3 +24,17 @@ app:
     secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B59}
     access-token-expiration-ms: ${JWT_ACCESS_EXPIRATION:3600000}      # 1 hour
     refresh-token-expiration-ms: ${JWT_REFRESH_EXPIRATION:604800000} # 7 days
+  quick-entry:
+    auto-submit-threshold: ${QUICK_ENTRY_AUTOSUBMIT:0.85}  # confidence >= this && nothing missing -> create without confirm
+    llm-threshold: ${QUICK_ENTRY_LLM_THRESHOLD:0.75}       # rule confidence below this -> try the LLM fallback (step 6)
+  anthropic:
+    api-key: ${ANTHROPIC_API_KEY:}                          # empty -> LLM disabled, rules only
+    model: ${ANTHROPIC_MODEL:claude-haiku-4-5}
+  whatsapp:
+    enabled: ${WHATSAPP_ENABLED:false}                      # gates the OUTBOUND Meta call only
+    api-base: ${WHATSAPP_API_BASE:https://graph.facebook.com/v21.0}
+    phone-number-id: ${WHATSAPP_PHONE_NUMBER_ID:}
+    access-token: ${WHATSAPP_ACCESS_TOKEN:}
+    verify-token: ${WHATSAPP_VERIFY_TOKEN:changeme}         # echoed back on the GET webhook handshake
+    app-secret: ${WHATSAPP_APP_SECRET:}                     # empty -> POST signature check skipped (local dev)
+    conversation-ttl-seconds: ${WHATSAPP_CONV_TTL:900}      # idle conversation expiry in Redis

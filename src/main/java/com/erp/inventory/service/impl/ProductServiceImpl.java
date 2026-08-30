@@ -3,18 +3,19 @@ package com.erp.inventory.service.impl;
 import com.erp.inventory.dto.request.ProductRequest;
 import com.erp.inventory.dto.response.ProductResponse;
 import com.erp.inventory.entity.Category;
+import com.erp.inventory.entity.Company;
 import com.erp.inventory.entity.Product;
-import com.erp.inventory.entity.Supplier;
 import com.erp.inventory.exception.DuplicateResourceException;
 import com.erp.inventory.exception.ResourceNotFoundException;
 import com.erp.inventory.repository.CategoryRepository;
+import com.erp.inventory.repository.CompanyRepository;
 import com.erp.inventory.repository.ProductRepository;
-import com.erp.inventory.repository.SupplierRepository;
 import com.erp.inventory.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -23,7 +24,7 @@ public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
-    private final SupplierRepository supplierRepository;
+    private final CompanyRepository companyRepository;
 
     @Override
     @Transactional
@@ -40,8 +41,9 @@ public class ProductServiceImpl implements ProductService {
                 .costPrice(request.getCostPrice())
                 .reorderLevel(request.getReorderLevel() != null ? request.getReorderLevel() : 10)
                 .category(resolveCategory(request.getCategoryId()))
-                .supplier(resolveSupplier(request.getSupplierId()))
+                .company(resolveCompany(request.getCompanyId()))
                 .active(true)
+                .attributes(request.getAttributes() != null ? request.getAttributes() : new HashMap<>())
                 .build();
 
         return toResponse(productRepository.save(product));
@@ -60,7 +62,10 @@ public class ProductServiceImpl implements ProductService {
             product.setReorderLevel(request.getReorderLevel());
         }
         product.setCategory(resolveCategory(request.getCategoryId()));
-        product.setSupplier(resolveSupplier(request.getSupplierId()));
+        product.setCompany(resolveCompany(request.getCompanyId()));
+        if (request.getAttributes() != null) {
+            product.setAttributes(request.getAttributes());
+        }
         return toResponse(product);
     }
 
@@ -90,12 +95,12 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> ResourceNotFoundException.of("Category", categoryId));
     }
 
-    private Supplier resolveSupplier(Long supplierId) {
-        if (supplierId == null) {
+    private Company resolveCompany(Long companyId) {
+        if (companyId == null) {
             return null;
         }
-        return supplierRepository.findById(supplierId)
-                .orElseThrow(() -> ResourceNotFoundException.of("Supplier", supplierId));
+        return companyRepository.findById(companyId)
+                .orElseThrow(() -> ResourceNotFoundException.of("Company", companyId));
     }
 
     private Product findEntity(Long id) {
@@ -113,8 +118,9 @@ public class ProductServiceImpl implements ProductService {
                 .costPrice(product.getCostPrice())
                 .reorderLevel(product.getReorderLevel())
                 .categoryName(product.getCategory() != null ? product.getCategory().getName() : null)
-                .supplierName(product.getSupplier() != null ? product.getSupplier().getName() : null)
+                .companyId(product.getCompany() != null ? product.getCompany().getId() : null)
                 .active(product.isActive())
+                .attributes(product.getAttributes())
                 .build();
     }
 }

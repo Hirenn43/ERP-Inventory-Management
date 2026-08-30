@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -34,5 +35,8 @@ public class ProductRequest {
 
     private Long categoryId;
 
-    private Long supplierId;
+    private Long companyId;
+
+    // Optional freeform fields, e.g. {"color": "black", "warrantyMonths": 24, "specSheetUrl": "..."}
+    private Map<String, Object> attributes;
 }

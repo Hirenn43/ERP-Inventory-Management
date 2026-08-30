@@ -6,9 +6,13 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 @Entity
 @Table(name = "products")
@@ -47,12 +51,19 @@ public class Product {
     private Category category;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "supplier_id")
-    private Supplier supplier;
+    @JoinColumn(name = "company_id")
+    private Company company;
 
     @Builder.Default
     @Column(nullable = false)
     private boolean active = true;
+
+    // Freeform, schema-less extra fields (e.g. color, warranty, spec sheet URL...) - add/remove keys here
+    // any time without a DB migration. Known, frequently-queried fields should stay as real columns above.
+    @Builder.Default
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private Map<String, Object> attributes = new HashMap<>();
 
     @Column(updatable = false)
     private LocalDateTime createdAt;

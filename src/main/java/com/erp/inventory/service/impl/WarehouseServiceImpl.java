@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
 
 @Service
@@ -24,6 +25,7 @@ public class WarehouseServiceImpl implements WarehouseService {
         Warehouse warehouse = Warehouse.builder()
                 .name(request.getName())
                 .location(request.getLocation())
+                .attributes(request.getAttributes() != null ? request.getAttributes() : new HashMap<>())
                 .build();
         return toResponse(warehouseRepository.save(warehouse));
     }
@@ -34,6 +36,9 @@ public class WarehouseServiceImpl implements WarehouseService {
         Warehouse warehouse = findEntity(id);
         warehouse.setName(request.getName());
         warehouse.setLocation(request.getLocation());
+        if (request.getAttributes() != null) {
+            warehouse.setAttributes(request.getAttributes());
+        }
         return toResponse(warehouse);
     }
 
@@ -63,6 +68,7 @@ public class WarehouseServiceImpl implements WarehouseService {
                 .id(warehouse.getId())
                 .name(warehouse.getName())
                 .location(warehouse.getLocation())
+                .attributes(warehouse.getAttributes())
                 .build();
     }
 }

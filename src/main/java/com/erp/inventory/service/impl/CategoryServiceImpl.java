@@ -11,7 +11,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +30,7 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = Category.builder()
                 .name(request.getName())
                 .description(request.getDescription())
+                .attributes(request.getAttributes() != null ? request.getAttributes() : new HashMap<>())
                 .build();
         return toResponse(categoryRepository.save(category));
     }
@@ -38,6 +41,9 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = findEntity(id);
         category.setName(request.getName());
         category.setDescription(request.getDescription());
+        if (request.getAttributes() != null) {
+            category.setAttributes(request.getAttributes());
+        }
         return toResponse(category);
     }
 
@@ -68,6 +74,7 @@ public class CategoryServiceImpl implements CategoryService {
                 .id(category.getId())
                 .name(category.getName())
                 .description(category.getDescription())
+                .attributes(category.getAttributes())
                 .build();
     }
 }

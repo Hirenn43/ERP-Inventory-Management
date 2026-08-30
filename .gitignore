@@ -8,3 +8,8 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 .vscode/
 HELP.md
+
+# local secrets
+.env
+.env.*
+*.env

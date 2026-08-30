@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.Map;
+
 @Getter
 @Setter
 @Builder
@@ -15,4 +17,5 @@ public class WarehouseResponse {
     private Long id;
     private String name;
     private String location;
+    private Map<String, Object> attributes;
 }

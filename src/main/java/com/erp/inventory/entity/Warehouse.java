@@ -6,6 +6,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @Entity
 @Table(name = "warehouses")
@@ -25,4 +30,10 @@ public class Warehouse {
 
     @Column(length = 255)
     private String location;
+
+    // Freeform extra fields - add/remove keys any time without a DB migration.
+    @Builder.Default
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private Map<String, Object> attributes = new HashMap<>();
 }

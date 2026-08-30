@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -22,6 +23,7 @@ public class ProductResponse {
     private BigDecimal costPrice;
     private Integer reorderLevel;
     private String categoryName;
-    private String supplierName;
+    private Long companyId;
     private boolean active;
+    private Map<String, Object> attributes;
 }

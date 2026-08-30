@@ -35,6 +35,8 @@ public class SecurityConfig {
     // Public endpoints that do NOT require an access token.
     private static final String[] PUBLIC_ENDPOINTS = {
             "/api/auth/**",
+            "/api/whatsapp/webhook",   // protected by X-Hub-Signature-256, not JWT
+            "/api/whatsapp/simulate",  // dev-profile only (controller is @Profile("dev"))
             "/v3/api-docs/**",
             "/swagger-ui/**",
             "/swagger-ui.html",

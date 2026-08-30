@@ -4,6 +4,8 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Map;
+
 @Getter
 @Setter
 public class WarehouseRequest {
@@ -12,4 +14,6 @@ public class WarehouseRequest {
     private String name;
 
     private String location;
+
+    private Map<String, Object> attributes;
 }

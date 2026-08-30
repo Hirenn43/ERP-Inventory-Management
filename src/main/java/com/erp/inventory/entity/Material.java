@@ -1,0 +1,47 @@
+package com.erp.inventory.entity;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/** A raw material / input variant (e.g. "GOLD-150-POLY1" yarn) - distinct from Product, which is what
+ *  gets sold. Purchased and consumed rather than designed and sold. */
+@Entity
+@Table(name = "materials")
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class Material {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "company_id")
+    private Company company;
+
+    @Column(nullable = false, length = 80)
+    private String code;
+
+    @Column(length = 80)
+    private String quality;
+
+    @Column(length = 20)
+    private String unit;
+
+    @Builder.Default
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private Map<String, Object> attributes = new HashMap<>();
+}
