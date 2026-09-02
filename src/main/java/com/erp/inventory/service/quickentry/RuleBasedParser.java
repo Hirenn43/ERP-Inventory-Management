@@ -233,7 +233,10 @@ public class RuleBasedParser {
                 .replaceAll("\\s+", " ")
                 .trim();
         if (!cleaned.isBlank()) {
-            f.put("name", capitalizeWords(cleaned));
+            // vehicle "numbers" are always upper-case; other masters get title case
+            f.put("name", action == QuickEntryAction.CREATE_VEHICLE
+                    ? cleaned.toUpperCase(Locale.ROOT).replaceAll("\\s+", "")
+                    : capitalizeWords(cleaned));
         }
 
         Matcher mob = MOBILE.matcher(text);

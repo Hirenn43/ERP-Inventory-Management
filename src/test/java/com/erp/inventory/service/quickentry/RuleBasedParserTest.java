@@ -129,6 +129,14 @@ class RuleBasedParserTest {
     }
 
     @Test
+    void vehicle_intentKeepsUppercaseNumber() {
+        QuickEntryResult r = parser.parse("new vehicle GJ 05 BV 5313 9825000000");
+        assertThat(r.getAction()).isEqualTo(QuickEntryAction.CREATE_VEHICLE);
+        assertThat(r.getFields()).containsEntry("name", "GJ05BV5313");
+        assertThat(r.getFields()).containsEntry("mobileNo", "9825000000");
+    }
+
+    @Test
     void designMaster_intent() {
         QuickEntryResult r = parser.parse("new pattern Peacock Butta");
         assertThat(r.getAction()).isEqualTo(QuickEntryAction.CREATE_DESIGN);
