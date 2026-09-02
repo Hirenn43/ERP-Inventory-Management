@@ -1,6 +1,8 @@
 package com.erp.inventory.entity;
 
+import com.erp.inventory.entity.enums.StockType;
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -39,6 +41,28 @@ public class Material {
 
     @Column(length = 20)
     private String unit;
+
+    // --- Item Master fields ---------------------------------------------
+    @Column(length = 150)
+    private String name;
+
+    @Column(length = 20)
+    private String hsnCode;
+
+    @Column(length = 20)
+    private String uom;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private StockType stockType;
+
+    @Column(precision = 6, scale = 2)
+    private BigDecimal gstRate;
+
+    /** Item Group - a {@link Category} id, resolved client-side. */
+    private Long categoryId;
+
+    private Boolean closed;
 
     @Builder.Default
     @JdbcTypeCode(SqlTypes.JSON)

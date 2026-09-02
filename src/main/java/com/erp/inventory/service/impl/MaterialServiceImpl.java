@@ -37,6 +37,13 @@ public class MaterialServiceImpl implements MaterialService {
                 .code(request.getCode())
                 .quality(request.getQuality())
                 .unit(request.getUnit())
+                .name(request.getName())
+                .hsnCode(request.getHsnCode())
+                .uom(request.getUom())
+                .stockType(request.getStockType())
+                .gstRate(request.getGstRate())
+                .categoryId(request.getCategoryId())
+                .closed(request.getClosed())
                 .attributes(request.getAttributes() != null ? request.getAttributes() : new HashMap<>())
                 .build();
         return toResponse(materialRepository.save(material));
@@ -50,6 +57,13 @@ public class MaterialServiceImpl implements MaterialService {
         material.setCode(request.getCode());
         material.setQuality(request.getQuality());
         material.setUnit(request.getUnit());
+        material.setName(request.getName());
+        material.setHsnCode(request.getHsnCode());
+        material.setUom(request.getUom());
+        material.setStockType(request.getStockType());
+        material.setGstRate(request.getGstRate());
+        material.setCategoryId(request.getCategoryId());
+        material.setClosed(request.getClosed());
         if (request.getAttributes() != null) {
             material.setAttributes(request.getAttributes());
         }
@@ -92,6 +106,13 @@ public class MaterialServiceImpl implements MaterialService {
                 .code(material.getCode())
                 .quality(material.getQuality())
                 .unit(material.getUnit())
+                .name(material.getName())
+                .hsnCode(material.getHsnCode())
+                .uom(material.getUom())
+                .stockType(material.getStockType())
+                .gstRate(material.getGstRate())
+                .categoryId(material.getCategoryId())
+                .closed(material.getClosed())
                 .availableQty(onHand(material.getId()))
                 .attributes(material.getAttributes())
                 .build();

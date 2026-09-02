@@ -1,7 +1,9 @@
 package com.erp.inventory.entity;
 
 import com.erp.inventory.entity.enums.PartyRole;
+import com.erp.inventory.entity.enums.RegistrationType;
 import jakarta.persistence.*;
+import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -44,6 +46,52 @@ public class Party {
 
     @Column(length = 100)
     private String email;
+
+    // --- Account Master: GST / registration -------------------------------
+    @Column(length = 20)
+    private String gstin;
+
+    @Column(length = 15)
+    private String pan;
+
+    @Column(length = 2)
+    private String stateCode;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private RegistrationType registrationType;
+
+    // --- Account Master: address extras ----------------------------------
+    @Column(length = 80)
+    private String city;
+
+    @Column(length = 80)
+    private String state;
+
+    @Column(length = 12)
+    private String pinCode;
+
+    @Column(length = 120)
+    private String contactPersonName;
+
+    // --- Account Master: ledger / limits --------------------------------
+    @Column(precision = 14, scale = 2)
+    private BigDecimal openingBalance;
+
+    @Column(precision = 14, scale = 2)
+    private BigDecimal creditLimitAmount;
+
+    private Integer creditLimitDays;
+
+    private Boolean blacklisted;
+
+    /** Account Master "Party Close" - kept for history, hidden from pickers. */
+    private Boolean closed;
+
+    // --- Account Master: master-data links (plain ids, resolved client-side) ---
+    private Long scheduleId;
+    private Long brokerId;
+    private Long areaId;
 
     @Builder.Default
     @ElementCollection(fetch = FetchType.EAGER)

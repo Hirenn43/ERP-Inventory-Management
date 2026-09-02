@@ -32,6 +32,22 @@ public class PartyServiceImpl implements PartyService {
                 .mobile(request.getMobile())
                 .email(request.getEmail())
                 .roles(request.getRoles())
+                .gstin(request.getGstin())
+                .pan(request.getPan())
+                .stateCode(request.getStateCode())
+                .registrationType(request.getRegistrationType())
+                .city(request.getCity())
+                .state(request.getState())
+                .pinCode(request.getPinCode())
+                .contactPersonName(request.getContactPersonName())
+                .openingBalance(request.getOpeningBalance())
+                .creditLimitAmount(request.getCreditLimitAmount())
+                .creditLimitDays(request.getCreditLimitDays())
+                .blacklisted(request.getBlacklisted())
+                .closed(request.getClosed())
+                .scheduleId(request.getScheduleId())
+                .brokerId(request.getBrokerId())
+                .areaId(request.getAreaId())
                 .attributes(request.getAttributes() != null ? request.getAttributes() : new HashMap<>())
                 .build();
         return toResponse(partyRepository.save(party));
@@ -47,6 +63,22 @@ public class PartyServiceImpl implements PartyService {
         party.setMobile(request.getMobile());
         party.setEmail(request.getEmail());
         party.setRoles(request.getRoles());
+        party.setGstin(request.getGstin());
+        party.setPan(request.getPan());
+        party.setStateCode(request.getStateCode());
+        party.setRegistrationType(request.getRegistrationType());
+        party.setCity(request.getCity());
+        party.setState(request.getState());
+        party.setPinCode(request.getPinCode());
+        party.setContactPersonName(request.getContactPersonName());
+        party.setOpeningBalance(request.getOpeningBalance());
+        party.setCreditLimitAmount(request.getCreditLimitAmount());
+        party.setCreditLimitDays(request.getCreditLimitDays());
+        party.setBlacklisted(request.getBlacklisted());
+        party.setClosed(request.getClosed());
+        party.setScheduleId(request.getScheduleId());
+        party.setBrokerId(request.getBrokerId());
+        party.setAreaId(request.getAreaId());
         if (request.getAttributes() != null) {
             party.setAttributes(request.getAttributes());
         }
@@ -91,6 +123,22 @@ public class PartyServiceImpl implements PartyService {
                 .mobile(party.getMobile())
                 .email(party.getEmail())
                 .roles(party.getRoles())
+                .gstin(party.getGstin())
+                .pan(party.getPan())
+                .stateCode(party.getStateCode())
+                .registrationType(party.getRegistrationType())
+                .city(party.getCity())
+                .state(party.getState())
+                .pinCode(party.getPinCode())
+                .contactPersonName(party.getContactPersonName())
+                .openingBalance(party.getOpeningBalance())
+                .creditLimitAmount(party.getCreditLimitAmount())
+                .creditLimitDays(party.getCreditLimitDays())
+                .blacklisted(party.getBlacklisted())
+                .closed(party.getClosed())
+                .scheduleId(party.getScheduleId())
+                .brokerId(party.getBrokerId())
+                .areaId(party.getAreaId())
                 .attributes(party.getAttributes())
                 .build();
     }
