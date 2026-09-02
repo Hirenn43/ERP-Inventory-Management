@@ -98,11 +98,11 @@ class RuleBasedParserTest {
 
     @Test
     void broker_intentNameAndPhone() {
-        QuickEntryResult r = parser.parse("new broker Maulik Shah 9825011122 brokerage 2");
+        QuickEntryResult r = parser.parse("new broker Maulik Shah 9825011122 brokerage 1.5");
         assertThat(r.getAction()).isEqualTo(QuickEntryAction.CREATE_BROKER);
         assertThat(r.getFields()).containsEntry("name", "Maulik Shah");
         assertThat(r.getFields()).containsEntry("phone1", "9825011122");
-        assertThat(r.getFields()).containsEntry("brokeragePct", new BigDecimal("2"));
+        assertThat(r.getFields()).containsEntry("brokeragePct", new BigDecimal("1.5"));
         assertThat(r.getConfidence()).isGreaterThan(0.5);
     }
 

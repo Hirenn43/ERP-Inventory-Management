@@ -37,6 +37,7 @@ public class RuleBasedParser {
     private static final Pattern VARIANT = Pattern.compile("\\b(ground|pallu|border|body|skirt|blouse)\\s+([a-z0-9-]+)", Pattern.CASE_INSENSITIVE);
     private static final Pattern KV = Pattern.compile("\\b(pick|reed|hook|panna|gsm|pieces|weave)\\s+([a-z0-9-]+)", Pattern.CASE_INSENSITIVE);
     private static final Pattern GSTIN = Pattern.compile("\\b(\\d{2}[A-Z]{5}\\d{4}[A-Z][A-Z0-9]Z[A-Z0-9])\\b", Pattern.CASE_INSENSITIVE);
+    private static final Pattern BROKERAGE = Pattern.compile("brokerage\\s+(\\d+(?:\\.\\d+)?)", Pattern.CASE_INSENSITIVE);
 
     /** Trigger word -> "create simple master" action (name-only entities). */
     private static final Map<String, QuickEntryAction> MASTER_KEYWORDS = new LinkedHashMap<>() {{
@@ -261,8 +262,12 @@ public class RuleBasedParser {
             f.put("gstin", gm.group(1).toUpperCase(Locale.ROOT));
         }
 
-        after(lower, List.of("brokerage")).map(RuleBasedParser::num).filter(v -> v != null)
-                .ifPresent(v -> { if (action == QuickEntryAction.CREATE_BROKER) f.put("brokeragePct", v); });
+        if (action == QuickEntryAction.CREATE_BROKER) {
+            Matcher bm = BROKERAGE.matcher(lower);
+            if (bm.find()) {
+                f.put("brokeragePct", new BigDecimal(bm.group(1)));
+            }
+        }
 
         money(lower).ifPresent(m -> {
             switch (action) {
@@ -272,14 +277,6 @@ public class RuleBasedParser {
         });
 
         r.setConfidence(f.containsKey("name") ? 0.82 : 0.35);
-    }
-
-    private static BigDecimal num(String s) {
-        try {
-            return new BigDecimal(s.replaceAll("[^0-9.]", ""));
-        } catch (RuntimeException e) {
-            return null;
-        }
     }
 
     private static String capitalizeWords(String s) {
