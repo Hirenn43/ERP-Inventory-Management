@@ -1,10 +1,17 @@
 package com.erp.inventory.service.whatsapp;
 
+import com.erp.inventory.dto.request.AreaRequest;
+import com.erp.inventory.dto.request.BrokerRequest;
+import com.erp.inventory.dto.request.DesignRequest;
+import com.erp.inventory.dto.request.JobRequest;
 import com.erp.inventory.dto.request.MaterialStockMovementRequest;
 import com.erp.inventory.dto.request.OrderFulfillmentEventRequest;
 import com.erp.inventory.dto.request.OrderRequest;
 import com.erp.inventory.dto.request.PartyRequest;
 import com.erp.inventory.dto.request.ProductRequest;
+import com.erp.inventory.dto.request.ScheduleRequest;
+import com.erp.inventory.dto.request.TransporterRequest;
+import com.erp.inventory.dto.request.VehicleRequest;
 import com.erp.inventory.dto.response.OrderResponse;
 import com.erp.inventory.entity.WhatsappUserLink;
 import com.erp.inventory.entity.enums.QuickEntryAction;
@@ -12,10 +19,17 @@ import com.erp.inventory.exception.DuplicateResourceException;
 import com.erp.inventory.exception.QuickEntryExecException;
 import com.erp.inventory.exception.ResourceNotFoundException;
 import com.erp.inventory.security.UserPrincipal;
+import com.erp.inventory.service.AreaService;
+import com.erp.inventory.service.BrokerService;
+import com.erp.inventory.service.DesignService;
+import com.erp.inventory.service.JobService;
 import com.erp.inventory.service.MaterialStockMovementService;
 import com.erp.inventory.service.OrderService;
 import com.erp.inventory.service.PartyService;
 import com.erp.inventory.service.ProductService;
+import com.erp.inventory.service.ScheduleService;
+import com.erp.inventory.service.TransporterService;
+import com.erp.inventory.service.VehicleService;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -38,6 +52,13 @@ public class QuickEntryExecutor {
     private final MaterialStockMovementService materialStockMovementService;
     private final PartyService partyService;
     private final ProductService productService;
+    private final BrokerService brokerService;
+    private final AreaService areaService;
+    private final ScheduleService scheduleService;
+    private final JobService jobService;
+    private final DesignService designService;
+    private final TransporterService transporterService;
+    private final VehicleService vehicleService;
 
     private final ObjectMapper mapper = new ObjectMapper()
             .registerModule(new JavaTimeModule())
@@ -53,6 +74,41 @@ public class QuickEntryExecutor {
                 case ADD_FULFILLMENT_EVENT -> addFulfillmentEvent(fields);
                 case CREATE_PARTY -> createParty(fields, link);
                 case CREATE_PRODUCT -> createProduct(fields, link);
+                case CREATE_BROKER -> {
+                    BrokerRequest req = mapper.convertValue(fields, BrokerRequest.class);
+                    scope(link, req::setCompanyId);
+                    yield "Broker created ✅ " + brokerService.create(req).getName();
+                }
+                case CREATE_AREA -> {
+                    AreaRequest req = mapper.convertValue(fields, AreaRequest.class);
+                    scope(link, req::setCompanyId);
+                    yield "Area created ✅ " + areaService.create(req).getName();
+                }
+                case CREATE_SCHEDULE -> {
+                    ScheduleRequest req = mapper.convertValue(fields, ScheduleRequest.class);
+                    scope(link, req::setCompanyId);
+                    yield "Schedule created ✅ " + scheduleService.create(req).getName();
+                }
+                case CREATE_JOB -> {
+                    JobRequest req = mapper.convertValue(fields, JobRequest.class);
+                    scope(link, req::setCompanyId);
+                    yield "Job created ✅ " + jobService.create(req).getName();
+                }
+                case CREATE_DESIGN -> {
+                    DesignRequest req = mapper.convertValue(fields, DesignRequest.class);
+                    scope(link, req::setCompanyId);
+                    yield "Design created ✅ " + designService.create(req).getName();
+                }
+                case CREATE_TRANSPORTER -> {
+                    TransporterRequest req = mapper.convertValue(fields, TransporterRequest.class);
+                    scope(link, req::setCompanyId);
+                    yield "Transporter created ✅ " + transporterService.create(req).getName();
+                }
+                case CREATE_VEHICLE -> {
+                    VehicleRequest req = mapper.convertValue(fields, VehicleRequest.class);
+                    scope(link, req::setCompanyId);
+                    yield "Vehicle created ✅ " + vehicleService.create(req).getName();
+                }
                 case UNKNOWN -> throw new QuickEntryExecException("Sorry, I couldn't tell what to record.");
             };
         } catch (ResourceNotFoundException | DuplicateResourceException | IllegalArgumentException
@@ -104,6 +160,13 @@ public class QuickEntryExecutor {
         }
         var product = productService.create(req);
         return "Design created ✅ " + product.getSku() + " — " + product.getName();
+    }
+
+    /** Apply the WhatsApp user's company to a *Request, matching the "New" flows. */
+    private static void scope(WhatsappUserLink link, java.util.function.Consumer<Long> setter) {
+        if (link.getCompany() != null) {
+            setter.accept(link.getCompany().getId());
+        }
     }
 
     private static void defaultDate(Map<String, Object> fields) {

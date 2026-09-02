@@ -200,6 +200,9 @@ public class WhatsAppQuickEntryService {
                 • purchase — "bought 200 kg yarn from XYZ Traders"
                 • dispatch — "dispatched 300 mtr ORD-123"
                 • new party — "new customer ABC Textiles"
-                • new design — "new design SK12 rate 120/80\"""";
+                • new design — "new design SK12 rate 120/80"
+                • new broker — "new broker Maulik Shah 9825011122"
+                • new transporter — "new transporter VRL Logistics"
+                • new area / vehicle / schedule / job / pattern too\"""";
     }
 }

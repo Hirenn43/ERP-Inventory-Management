@@ -14,10 +14,17 @@ import com.erp.inventory.entity.enums.MovementDirection;
 import com.erp.inventory.entity.enums.QuickEntryAction;
 import com.erp.inventory.exception.DuplicateResourceException;
 import com.erp.inventory.exception.QuickEntryExecException;
+import com.erp.inventory.service.AreaService;
+import com.erp.inventory.service.BrokerService;
+import com.erp.inventory.service.DesignService;
+import com.erp.inventory.service.JobService;
 import com.erp.inventory.service.MaterialStockMovementService;
 import com.erp.inventory.service.OrderService;
 import com.erp.inventory.service.PartyService;
 import com.erp.inventory.service.ProductService;
+import com.erp.inventory.service.ScheduleService;
+import com.erp.inventory.service.TransporterService;
+import com.erp.inventory.service.VehicleService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -44,9 +51,18 @@ class QuickEntryExecutorTest {
     @Mock MaterialStockMovementService materialStockMovementService;
     @Mock PartyService partyService;
     @Mock ProductService productService;
+    @Mock BrokerService brokerService;
+    @Mock AreaService areaService;
+    @Mock ScheduleService scheduleService;
+    @Mock JobService jobService;
+    @Mock DesignService designService;
+    @Mock TransporterService transporterService;
+    @Mock VehicleService vehicleService;
 
     QuickEntryExecutor executor() {
-        return new QuickEntryExecutor(orderService, materialStockMovementService, partyService, productService);
+        return new QuickEntryExecutor(orderService, materialStockMovementService, partyService, productService,
+                brokerService, areaService, scheduleService, jobService, designService, transporterService,
+                vehicleService);
     }
 
     private final WhatsappUserLink link = WhatsappUserLink.builder()

@@ -12,12 +12,19 @@ import java.util.Map;
 @Component
 public class RequiredFields {
 
-    private static final Map<QuickEntryAction, List<String>> REQUIRED = Map.of(
-            QuickEntryAction.CREATE_ORDER, List.of("partyId", "productId", "orderedQty"),
-            QuickEntryAction.RECORD_YARN_PURCHASE, List.of("materialId", "partyId", "quantity"),
-            QuickEntryAction.ADD_FULFILLMENT_EVENT, List.of("orderId", "stage", "quantity"),
-            QuickEntryAction.CREATE_PARTY, List.of("name", "roles"),
-            QuickEntryAction.CREATE_PRODUCT, List.of("sku", "name", "unitPrice", "costPrice"));
+    private static final Map<QuickEntryAction, List<String>> REQUIRED = Map.ofEntries(
+            Map.entry(QuickEntryAction.CREATE_ORDER, List.of("partyId", "productId", "orderedQty")),
+            Map.entry(QuickEntryAction.RECORD_YARN_PURCHASE, List.of("materialId", "partyId", "quantity")),
+            Map.entry(QuickEntryAction.ADD_FULFILLMENT_EVENT, List.of("orderId", "stage", "quantity")),
+            Map.entry(QuickEntryAction.CREATE_PARTY, List.of("name", "roles")),
+            Map.entry(QuickEntryAction.CREATE_PRODUCT, List.of("sku", "name", "unitPrice", "costPrice")),
+            Map.entry(QuickEntryAction.CREATE_BROKER, List.of("name")),
+            Map.entry(QuickEntryAction.CREATE_AREA, List.of("name")),
+            Map.entry(QuickEntryAction.CREATE_SCHEDULE, List.of("name")),
+            Map.entry(QuickEntryAction.CREATE_JOB, List.of("name")),
+            Map.entry(QuickEntryAction.CREATE_DESIGN, List.of("name")),
+            Map.entry(QuickEntryAction.CREATE_TRANSPORTER, List.of("name")),
+            Map.entry(QuickEntryAction.CREATE_VEHICLE, List.of("name")));
 
     public List<String> keys(QuickEntryAction action) {
         return REQUIRED.getOrDefault(action, List.of());

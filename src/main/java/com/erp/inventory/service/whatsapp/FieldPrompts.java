@@ -28,18 +28,25 @@ public class FieldPrompts {
             Map.entry("name", "Name?"),
             Map.entry("date", "Date? (YYYY-MM-DD, or 'today')"));
 
-    private static final Map<QuickEntryAction, Map<String, String>> OVERRIDES = Map.of(
-            QuickEntryAction.RECORD_YARN_PURCHASE, Map.of(
+    private static final Map<QuickEntryAction, Map<String, String>> OVERRIDES = Map.ofEntries(
+            Map.entry(QuickEntryAction.RECORD_YARN_PURCHASE, Map.of(
                     "partyId", "Supplier name?",
-                    "quantity", "Quantity (kg)?"),
-            QuickEntryAction.CREATE_ORDER, Map.of(
-                    "partyId", "Customer name?"),
-            QuickEntryAction.ADD_FULFILLMENT_EVENT, Map.of(
-                    "quantity", "Quantity (meters)?"),
-            QuickEntryAction.CREATE_PARTY, Map.of(
-                    "name", "Party name?"),
-            QuickEntryAction.CREATE_PRODUCT, Map.of(
-                    "name", "Design name?"));
+                    "quantity", "Quantity (kg)?")),
+            Map.entry(QuickEntryAction.CREATE_ORDER, Map.of(
+                    "partyId", "Customer name?")),
+            Map.entry(QuickEntryAction.ADD_FULFILLMENT_EVENT, Map.of(
+                    "quantity", "Quantity (meters)?")),
+            Map.entry(QuickEntryAction.CREATE_PARTY, Map.of(
+                    "name", "Party name?")),
+            Map.entry(QuickEntryAction.CREATE_PRODUCT, Map.of(
+                    "name", "Design name?")),
+            Map.entry(QuickEntryAction.CREATE_BROKER, Map.of("name", "Broker name?")),
+            Map.entry(QuickEntryAction.CREATE_AREA, Map.of("name", "Area name?")),
+            Map.entry(QuickEntryAction.CREATE_SCHEDULE, Map.of("name", "Schedule name?")),
+            Map.entry(QuickEntryAction.CREATE_JOB, Map.of("name", "Job name?")),
+            Map.entry(QuickEntryAction.CREATE_DESIGN, Map.of("name", "Design / pattern name?")),
+            Map.entry(QuickEntryAction.CREATE_TRANSPORTER, Map.of("name", "Transporter name?")),
+            Map.entry(QuickEntryAction.CREATE_VEHICLE, Map.of("name", "Vehicle number?")));
 
     public String prompt(QuickEntryAction action, String field) {
         Map<String, String> overrides = OVERRIDES.get(action);

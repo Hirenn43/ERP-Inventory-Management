@@ -97,6 +97,45 @@ class RuleBasedParserTest {
     }
 
     @Test
+    void broker_intentNameAndPhone() {
+        QuickEntryResult r = parser.parse("new broker Maulik Shah 9825011122 brokerage 2");
+        assertThat(r.getAction()).isEqualTo(QuickEntryAction.CREATE_BROKER);
+        assertThat(r.getFields()).containsEntry("name", "Maulik Shah");
+        assertThat(r.getFields()).containsEntry("phone1", "9825011122");
+        assertThat(r.getFields()).containsEntry("brokeragePct", new BigDecimal("2"));
+        assertThat(r.getConfidence()).isGreaterThan(0.5);
+    }
+
+    @Test
+    void transporter_intentNameAndGstin() {
+        QuickEntryResult r = parser.parse("add transporter VRL Logistics 24AAZPJ7525L1Z0");
+        assertThat(r.getAction()).isEqualTo(QuickEntryAction.CREATE_TRANSPORTER);
+        assertThat(r.getFields()).containsEntry("name", "Vrl Logistics");
+        assertThat(r.getFields()).containsEntry("gstin", "24AAZPJ7525L1Z0");
+    }
+
+    @Test
+    void area_intentAndRate() {
+        QuickEntryResult r = parser.parse("new area Ring Road rate 50");
+        assertThat(r.getAction()).isEqualTo(QuickEntryAction.CREATE_AREA);
+        assertThat(r.getFields()).containsEntry("name", "Ring Road");
+        assertThat(r.getFields()).containsEntry("rate", new BigDecimal("50"));
+    }
+
+    @Test
+    void newDesign_withoutMasterKeyword_isStillProduct() {
+        QuickEntryResult r = parser.parse("new design YH500 saree 900/550");
+        assertThat(r.getAction()).isEqualTo(QuickEntryAction.CREATE_PRODUCT);
+    }
+
+    @Test
+    void designMaster_intent() {
+        QuickEntryResult r = parser.parse("new pattern Peacock Butta");
+        assertThat(r.getAction()).isEqualTo(QuickEntryAction.CREATE_DESIGN);
+        assertThat(r.getFields()).containsEntry("name", "Peacock Butta");
+    }
+
+    @Test
     void gibberish_isUnknown() {
         QuickEntryResult r = parser.parse("asdf qwer zxcv");
         assertThat(r.getAction()).isEqualTo(QuickEntryAction.UNKNOWN);

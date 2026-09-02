@@ -36,6 +36,17 @@ public class RuleBasedParser {
     private static final Pattern DAY_MONTH = Pattern.compile("\\b(\\d{1,2})\\s+([a-z]{3,})\\b", Pattern.CASE_INSENSITIVE);
     private static final Pattern VARIANT = Pattern.compile("\\b(ground|pallu|border|body|skirt|blouse)\\s+([a-z0-9-]+)", Pattern.CASE_INSENSITIVE);
     private static final Pattern KV = Pattern.compile("\\b(pick|reed|hook|panna|gsm|pieces|weave)\\s+([a-z0-9-]+)", Pattern.CASE_INSENSITIVE);
+    private static final Pattern GSTIN = Pattern.compile("\\b(\\d{2}[A-Z]{5}\\d{4}[A-Z][A-Z0-9]Z[A-Z0-9])\\b", Pattern.CASE_INSENSITIVE);
+
+    /** Trigger word -> "create simple master" action (name-only entities). */
+    private static final Map<String, QuickEntryAction> MASTER_KEYWORDS = new LinkedHashMap<>() {{
+        put("broker", QuickEntryAction.CREATE_BROKER);
+        put("area", QuickEntryAction.CREATE_AREA);
+        put("schedule", QuickEntryAction.CREATE_SCHEDULE);
+        put("transporter", QuickEntryAction.CREATE_TRANSPORTER);
+        put("vehicle", QuickEntryAction.CREATE_VEHICLE);
+        put("pattern", QuickEntryAction.CREATE_DESIGN);
+    }};
 
     public QuickEntryResult parse(String text) {
         String lower = text.toLowerCase(Locale.ROOT);
@@ -47,6 +58,8 @@ public class RuleBasedParser {
             case ADD_FULFILLMENT_EVENT -> parseFulfillment(text, lower, r);
             case CREATE_PARTY -> parseParty(text, lower, r);
             case CREATE_PRODUCT -> parseProduct(text, lower, r);
+            case CREATE_BROKER, CREATE_AREA, CREATE_SCHEDULE, CREATE_JOB,
+                 CREATE_DESIGN, CREATE_TRANSPORTER, CREATE_VEHICLE -> parseSimpleMaster(text, lower, action, r);
             default -> r.setConfidence(0.1);
         }
         return r;
@@ -57,6 +70,20 @@ public class RuleBasedParser {
         if (s.matches(".*\\bnew\\s+(customer|supplier|manufacturer|party)\\b.*")
                 || s.matches(".*\\badd\\s+(customer|supplier|manufacturer|party)\\b.*")) {
             return QuickEntryAction.CREATE_PARTY;
+        }
+        // "new design master X" / "new pattern X" -> the Design master (before the product rule below)
+        if (s.matches(".*\\b(new|add)\\s+design\\s+master\\b.*") || s.matches(".*\\b(new|add)\\s+pattern\\b.*")) {
+            return QuickEntryAction.CREATE_DESIGN;
+        }
+        // "new job X" (but not "job worker" -> that's a party role, handled above)
+        if (s.matches(".*\\b(new|add)\\s+job\\b.*")
+                && !s.contains("job worker") && !s.contains("jobworker") && !s.contains("job work")) {
+            return QuickEntryAction.CREATE_JOB;
+        }
+        for (Map.Entry<String, QuickEntryAction> e : MASTER_KEYWORDS.entrySet()) {
+            if (s.matches(".*\\b(new|add)\\s+" + e.getKey() + "\\b.*")) {
+                return e.getValue();
+            }
         }
         if (s.startsWith("new design") || s.startsWith("new product") || s.startsWith("design ")
                 || s.startsWith("add design")) {
@@ -187,6 +214,81 @@ public class RuleBasedParser {
         }
         if (!attrs.isEmpty()) f.put("attributes", attrs);
         r.setConfidence(0.7);
+    }
+
+    /** Name-only masters (Broker, Area, Schedule, Job, Design, Transporter, Vehicle) plus a few
+     *  optional fields we can pull cheaply from the note. */
+    private void parseSimpleMaster(String text, String lower, QuickEntryAction action, QuickEntryResult r) {
+        Map<String, Object> f = r.getFields();
+
+        String triggerWords = "new|add|broker|area|schedule|job|transporter|vehicle|pattern|design|master";
+        String cleaned = lower
+                .replaceAll(EMAIL.pattern(), " ")
+                .replaceAll(MOBILE.pattern(), " ")
+                .replaceAll("(?i)" + GSTIN.pattern(), " ")
+                .replaceAll("(?i)\\b(rate|brokerage|gstin?|charge|tds|mobile|phone|ph|no|number)\\b.*", " ")
+                .replaceAll("(?i)\\s(?:@|rs\\.?\\s?|₹|price\\s+)\\d[\\d.]*", " ")
+                .replaceAll("(?i)\\b(" + triggerWords + ")\\b", " ")
+                .replaceAll("[^a-z0-9 &.'-]", " ")
+                .replaceAll("\\s+", " ")
+                .trim();
+        if (!cleaned.isBlank()) {
+            f.put("name", capitalizeWords(cleaned));
+        }
+
+        Matcher mob = MOBILE.matcher(text);
+        if (mob.find()) {
+            String phone = mob.group(1);
+            switch (action) {
+                case CREATE_BROKER -> f.put("phone1", phone);
+                case CREATE_TRANSPORTER -> f.put("phone", phone);
+                case CREATE_VEHICLE -> f.put("mobileNo", phone);
+                case CREATE_AREA -> f.put("contactMobile", phone);
+                default -> { /* no phone field */ }
+            }
+        }
+
+        Matcher em = EMAIL.matcher(text);
+        if (em.find() && action == QuickEntryAction.CREATE_BROKER) {
+            f.put("email", em.group());
+        }
+
+        Matcher gm = GSTIN.matcher(text);
+        if (gm.find() && action == QuickEntryAction.CREATE_TRANSPORTER) {
+            f.put("gstin", gm.group(1).toUpperCase(Locale.ROOT));
+        }
+
+        after(lower, List.of("brokerage")).map(RuleBasedParser::num).filter(v -> v != null)
+                .ifPresent(v -> { if (action == QuickEntryAction.CREATE_BROKER) f.put("brokeragePct", v); });
+
+        money(lower).ifPresent(m -> {
+            switch (action) {
+                case CREATE_AREA, CREATE_JOB, CREATE_DESIGN -> f.put("rate", m);
+                default -> { /* no rate field */ }
+            }
+        });
+
+        r.setConfidence(f.containsKey("name") ? 0.82 : 0.35);
+    }
+
+    private static BigDecimal num(String s) {
+        try {
+            return new BigDecimal(s.replaceAll("[^0-9.]", ""));
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
+
+    private static String capitalizeWords(String s) {
+        String[] w = s.split(" ");
+        StringBuilder sb = new StringBuilder();
+        for (String p : w) {
+            if (p.isBlank()) continue;
+            sb.append(sb.length() == 0 ? "" : " ")
+              .append(Character.toUpperCase(p.charAt(0)))
+              .append(p.substring(1));
+        }
+        return sb.toString();
     }
 
     // --- helpers --------------------------------------------------------
