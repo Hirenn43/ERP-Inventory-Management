@@ -30,11 +30,12 @@ public class CustomFieldDefinitionController {
     @GetMapping
     public ResponseEntity<?> getAll(
             @RequestParam(required = false) String resource,
+            @RequestParam(required = false, defaultValue = "false") boolean includeInactive,
             @RequestParam(required = false) String q,
             @RequestParam(required = false) Integer page,
             Pageable pageable) {
         if (resource != null && !resource.isBlank()) {
-            return ResponseEntity.ok(service.getByResource(resource));
+            return ResponseEntity.ok(service.getByResource(resource, includeInactive));
         }
         if (page == null && (q == null || q.isBlank())) {
             return ResponseEntity.ok(service.getAll());

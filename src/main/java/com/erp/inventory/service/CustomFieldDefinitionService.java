@@ -20,8 +20,9 @@ public interface CustomFieldDefinitionService {
 
     void delete(Long id);
 
-    /** Active definitions for one resource, ordered — what the Details forms consume. */
-    List<CustomFieldDefinitionResponse> getByResource(String resource);
+    /** Definitions for one resource, ordered. {@code includeInactive=false} is what the
+     *  Details forms consume; {@code true} is for the Master Management screen. */
+    List<CustomFieldDefinitionResponse> getByResource(String resource, boolean includeInactive);
 
     /** Bulk-create the given definitions, skipping keys that already exist for the resource. */
     List<CustomFieldDefinitionResponse> seedDefaults(String resource, List<CustomFieldDefinitionRequest> defs);

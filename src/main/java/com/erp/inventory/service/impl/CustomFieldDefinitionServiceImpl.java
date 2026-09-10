@@ -110,9 +110,11 @@ public class CustomFieldDefinitionServiceImpl implements CustomFieldDefinitionSe
     }
 
     @Override
-    public List<CustomFieldDefinitionResponse> getByResource(String resource) {
-        return repository.findByResourceAndActiveTrueOrderByDisplayOrderAscIdAsc(resource)
-                .stream().map(this::toResponse).toList();
+    public List<CustomFieldDefinitionResponse> getByResource(String resource, boolean includeInactive) {
+        var list = includeInactive
+                ? repository.findByResourceOrderByDisplayOrderAscIdAsc(resource)
+                : repository.findByResourceAndActiveTrueOrderByDisplayOrderAscIdAsc(resource);
+        return list.stream().map(this::toResponse).toList();
     }
 
     @Override
