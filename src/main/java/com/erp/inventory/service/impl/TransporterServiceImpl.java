@@ -4,6 +4,7 @@ import com.erp.inventory.dto.request.TransporterRequest;
 import com.erp.inventory.dto.response.TransporterResponse;
 import com.erp.inventory.entity.Company;
 import com.erp.inventory.entity.Transporter;
+import com.erp.inventory.exception.DuplicateResourceException;
 import com.erp.inventory.exception.ResourceNotFoundException;
 import com.erp.inventory.repository.CompanyRepository;
 import com.erp.inventory.repository.TransporterRepository;
@@ -25,6 +26,9 @@ public class TransporterServiceImpl implements TransporterService {
     @Override
     @Transactional
     public TransporterResponse create(TransporterRequest request) {
+        if (transporterRepository.existsByNameIgnoreCase(request.getName())) {
+            throw new DuplicateResourceException("Transporter already exists with name: " + request.getName());
+        }
         Transporter entity = Transporter.builder()
                 .company(resolveCompany(request.getCompanyId()))
                 .name(request.getName())
@@ -45,6 +49,9 @@ public class TransporterServiceImpl implements TransporterService {
     @Transactional
     public TransporterResponse update(Long id, TransporterRequest request) {
         Transporter entity = findEntity(id);
+        if (transporterRepository.existsByNameIgnoreCaseAndIdNot(request.getName(), id)) {
+            throw new DuplicateResourceException("Transporter already exists with name: " + request.getName());
+        }
         entity.setCompany(resolveCompany(request.getCompanyId()));
         entity.setName(request.getName());
         entity.setAddress1(request.getAddress1());

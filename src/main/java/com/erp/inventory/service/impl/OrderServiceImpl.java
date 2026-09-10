@@ -33,6 +33,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 @RequiredArgsConstructor
@@ -213,7 +214,17 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private String generateOrderNumber() {
-        return "ORD-" + Instant.now().toEpochMilli();
+        // epoch millis alone collide when two orders are created in the same millisecond (scripted /
+        // bulk creation). Add a random suffix and check the unique index before returning; the DB
+        // constraint is still the final backstop for the rare same-suffix race.
+        for (int attempt = 0; attempt < 10; attempt++) {
+            String candidate = "ORD-" + Instant.now().toEpochMilli() + "-"
+                    + ThreadLocalRandom.current().nextInt(1000, 10000);
+            if (!orderRepository.existsByOrderNumber(candidate)) {
+                return candidate;
+            }
+        }
+        throw new IllegalStateException("Could not allocate a unique order number after 10 attempts");
     }
 
     private OrderResponse toResponse(Order order) {

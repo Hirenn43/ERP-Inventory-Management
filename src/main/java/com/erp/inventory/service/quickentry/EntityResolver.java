@@ -47,7 +47,7 @@ public class EntityResolver {
     }
 
     public Optional<Match> product(String text) {
-        return best(text, productRepository.findAll(), Product::getId,
+        return best(text, productRepository.findByActiveTrue(), Product::getId,
                 p -> List.of(p.getSku(), p.getName()));
     }
 
@@ -70,7 +70,7 @@ public class EntityResolver {
         return switch (kind) {
             case PARTY -> scored(text, partyRepository.findAll(), Party::getId,
                     p -> List.of(p.getName()), limit);
-            case PRODUCT -> scored(text, productRepository.findAll(), Product::getId,
+            case PRODUCT -> scored(text, productRepository.findByActiveTrue(), Product::getId,
                     p -> List.of(p.getSku(), p.getName()), limit);
             case MATERIAL -> scored(text, materialRepository.findAll(), Material::getId,
                     m -> List.of(m.getCode(), m.getQuality() == null ? "" : m.getQuality()), limit);

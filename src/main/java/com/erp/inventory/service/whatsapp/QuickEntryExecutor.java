@@ -32,7 +32,7 @@ import com.erp.inventory.service.TransporterService;
 import com.erp.inventory.service.VehicleService;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import jakarta.annotation.PostConstruct;
 import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -60,9 +60,20 @@ public class QuickEntryExecutor {
     private final TransporterService transporterService;
     private final VehicleService vehicleService;
 
-    private final ObjectMapper mapper = new ObjectMapper()
-            .registerModule(new JavaTimeModule())
-            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    /** The shared application mapper (modules, date handling, naming). */
+    private final ObjectMapper objectMapper;
+
+    /**
+     * Derived from {@link #objectMapper}: same config, but tolerant of extra keys because the
+     * quick-entry {@code fields} map can carry entries that aren't on every target request DTO.
+     */
+    private ObjectMapper mapper;
+
+    @PostConstruct
+    void initMapper() {
+        this.mapper = objectMapper.copy()
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    }
 
     /** @return a short confirmation line to send back to the user. */
     public String execute(QuickEntryAction action, Map<String, Object> rawFields, WhatsappUserLink link) {

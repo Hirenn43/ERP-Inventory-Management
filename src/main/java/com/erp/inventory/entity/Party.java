@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -19,7 +20,12 @@ import java.util.Set;
 
 /** Replaces separate Customer/Supplier tables: one party can hold any combination of roles at once. */
 @Entity
-@Table(name = "parties")
+@Table(name = "parties", indexes = {
+        @Index(name = "idx_parties_company", columnList = "company_id"),
+        @Index(name = "idx_parties_schedule", columnList = "schedule_id"),
+        @Index(name = "idx_parties_broker", columnList = "broker_id"),
+        @Index(name = "idx_parties_area", columnList = "area_id")
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -30,6 +36,11 @@ public class Party {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Version
+    @Column(nullable = false)
+    @ColumnDefault("0")
+    private Long version;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id")
@@ -88,10 +99,18 @@ public class Party {
     /** Account Master "Party Close" - kept for history, hidden from pickers. */
     private Boolean closed;
 
-    // --- Account Master: master-data links (plain ids, resolved client-side) ---
-    private Long scheduleId;
-    private Long brokerId;
-    private Long areaId;
+    // --- Account Master: master-data links ---
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "schedule_id")
+    private Schedule schedule;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "broker_id")
+    private Broker broker;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "area_id")
+    private Area area;
 
     @Builder.Default
     @ElementCollection(fetch = FetchType.EAGER)

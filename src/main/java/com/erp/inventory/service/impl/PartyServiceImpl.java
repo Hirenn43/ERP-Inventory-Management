@@ -2,11 +2,18 @@ package com.erp.inventory.service.impl;
 
 import com.erp.inventory.dto.request.PartyRequest;
 import com.erp.inventory.dto.response.PartyResponse;
+import com.erp.inventory.entity.Area;
+import com.erp.inventory.entity.Broker;
 import com.erp.inventory.entity.Company;
 import com.erp.inventory.entity.Party;
+import com.erp.inventory.entity.Schedule;
+import com.erp.inventory.exception.DuplicateResourceException;
 import com.erp.inventory.exception.ResourceNotFoundException;
+import com.erp.inventory.repository.AreaRepository;
+import com.erp.inventory.repository.BrokerRepository;
 import com.erp.inventory.repository.CompanyRepository;
 import com.erp.inventory.repository.PartyRepository;
+import com.erp.inventory.repository.ScheduleRepository;
 import com.erp.inventory.service.PartyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,10 +28,16 @@ public class PartyServiceImpl implements PartyService {
 
     private final PartyRepository partyRepository;
     private final CompanyRepository companyRepository;
+    private final ScheduleRepository scheduleRepository;
+    private final BrokerRepository brokerRepository;
+    private final AreaRepository areaRepository;
 
     @Override
     @Transactional
     public PartyResponse create(PartyRequest request) {
+        if (partyRepository.existsByNameIgnoreCase(request.getName())) {
+            throw new DuplicateResourceException("Party already exists with name: " + request.getName());
+        }
         Party party = Party.builder()
                 .company(resolveCompany(request.getCompanyId()))
                 .name(request.getName())
@@ -45,9 +58,9 @@ public class PartyServiceImpl implements PartyService {
                 .creditLimitDays(request.getCreditLimitDays())
                 .blacklisted(request.getBlacklisted())
                 .closed(request.getClosed())
-                .scheduleId(request.getScheduleId())
-                .brokerId(request.getBrokerId())
-                .areaId(request.getAreaId())
+                .schedule(resolveSchedule(request.getScheduleId()))
+                .broker(resolveBroker(request.getBrokerId()))
+                .area(resolveArea(request.getAreaId()))
                 .attributes(request.getAttributes() != null ? request.getAttributes() : new HashMap<>())
                 .build();
         return toResponse(partyRepository.save(party));
@@ -57,6 +70,9 @@ public class PartyServiceImpl implements PartyService {
     @Transactional
     public PartyResponse update(Long id, PartyRequest request) {
         Party party = findEntity(id);
+        if (partyRepository.existsByNameIgnoreCaseAndIdNot(request.getName(), id)) {
+            throw new DuplicateResourceException("Party already exists with name: " + request.getName());
+        }
         party.setCompany(resolveCompany(request.getCompanyId()));
         party.setName(request.getName());
         party.setAddress(request.getAddress());
@@ -76,9 +92,9 @@ public class PartyServiceImpl implements PartyService {
         party.setCreditLimitDays(request.getCreditLimitDays());
         party.setBlacklisted(request.getBlacklisted());
         party.setClosed(request.getClosed());
-        party.setScheduleId(request.getScheduleId());
-        party.setBrokerId(request.getBrokerId());
-        party.setAreaId(request.getAreaId());
+        party.setSchedule(resolveSchedule(request.getScheduleId()));
+        party.setBroker(resolveBroker(request.getBrokerId()));
+        party.setArea(resolveArea(request.getAreaId()));
         if (request.getAttributes() != null) {
             party.setAttributes(request.getAttributes());
         }
@@ -109,6 +125,30 @@ public class PartyServiceImpl implements PartyService {
                 .orElseThrow(() -> ResourceNotFoundException.of("Company", companyId));
     }
 
+    private Schedule resolveSchedule(Long scheduleId) {
+        if (scheduleId == null) {
+            return null;
+        }
+        return scheduleRepository.findById(scheduleId)
+                .orElseThrow(() -> ResourceNotFoundException.of("Schedule", scheduleId));
+    }
+
+    private Broker resolveBroker(Long brokerId) {
+        if (brokerId == null) {
+            return null;
+        }
+        return brokerRepository.findById(brokerId)
+                .orElseThrow(() -> ResourceNotFoundException.of("Broker", brokerId));
+    }
+
+    private Area resolveArea(Long areaId) {
+        if (areaId == null) {
+            return null;
+        }
+        return areaRepository.findById(areaId)
+                .orElseThrow(() -> ResourceNotFoundException.of("Area", areaId));
+    }
+
     private Party findEntity(Long id) {
         return partyRepository.findById(id)
                 .orElseThrow(() -> ResourceNotFoundException.of("Party", id));
@@ -136,9 +176,9 @@ public class PartyServiceImpl implements PartyService {
                 .creditLimitDays(party.getCreditLimitDays())
                 .blacklisted(party.getBlacklisted())
                 .closed(party.getClosed())
-                .scheduleId(party.getScheduleId())
-                .brokerId(party.getBrokerId())
-                .areaId(party.getAreaId())
+                .scheduleId(party.getSchedule() != null ? party.getSchedule().getId() : null)
+                .brokerId(party.getBroker() != null ? party.getBroker().getId() : null)
+                .areaId(party.getArea() != null ? party.getArea().getId() : null)
                 .attributes(party.getAttributes())
                 .build();
     }

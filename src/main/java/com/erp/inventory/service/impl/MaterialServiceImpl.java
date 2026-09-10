@@ -2,10 +2,12 @@ package com.erp.inventory.service.impl;
 
 import com.erp.inventory.dto.request.MaterialRequest;
 import com.erp.inventory.dto.response.MaterialResponse;
+import com.erp.inventory.entity.Category;
 import com.erp.inventory.entity.Company;
 import com.erp.inventory.entity.Material;
 import com.erp.inventory.exception.DuplicateResourceException;
 import com.erp.inventory.exception.ResourceNotFoundException;
+import com.erp.inventory.repository.CategoryRepository;
 import com.erp.inventory.repository.CompanyRepository;
 import com.erp.inventory.repository.MaterialRepository;
 import com.erp.inventory.repository.MaterialStockMovementRepository;
@@ -24,6 +26,7 @@ public class MaterialServiceImpl implements MaterialService {
 
     private final MaterialRepository materialRepository;
     private final CompanyRepository companyRepository;
+    private final CategoryRepository categoryRepository;
     private final MaterialStockMovementRepository movementRepository;
 
     @Override
@@ -42,7 +45,7 @@ public class MaterialServiceImpl implements MaterialService {
                 .uom(request.getUom())
                 .stockType(request.getStockType())
                 .gstRate(request.getGstRate())
-                .categoryId(request.getCategoryId())
+                .category(resolveCategory(request.getCategoryId()))
                 .closed(request.getClosed())
                 .attributes(request.getAttributes() != null ? request.getAttributes() : new HashMap<>())
                 .build();
@@ -53,6 +56,9 @@ public class MaterialServiceImpl implements MaterialService {
     @Transactional
     public MaterialResponse update(Long id, MaterialRequest request) {
         Material material = findEntity(id);
+        if (materialRepository.existsByCodeAndIdNot(request.getCode(), id)) {
+            throw new DuplicateResourceException("Material already exists with code: " + request.getCode());
+        }
         material.setCompany(resolveCompany(request.getCompanyId()));
         material.setCode(request.getCode());
         material.setQuality(request.getQuality());
@@ -62,7 +68,7 @@ public class MaterialServiceImpl implements MaterialService {
         material.setUom(request.getUom());
         material.setStockType(request.getStockType());
         material.setGstRate(request.getGstRate());
-        material.setCategoryId(request.getCategoryId());
+        material.setCategory(resolveCategory(request.getCategoryId()));
         material.setClosed(request.getClosed());
         if (request.getAttributes() != null) {
             material.setAttributes(request.getAttributes());
@@ -94,6 +100,14 @@ public class MaterialServiceImpl implements MaterialService {
                 .orElseThrow(() -> ResourceNotFoundException.of("Company", companyId));
     }
 
+    private Category resolveCategory(Long categoryId) {
+        if (categoryId == null) {
+            return null;
+        }
+        return categoryRepository.findById(categoryId)
+                .orElseThrow(() -> ResourceNotFoundException.of("Category", categoryId));
+    }
+
     private Material findEntity(Long id) {
         return materialRepository.findById(id)
                 .orElseThrow(() -> ResourceNotFoundException.of("Material", id));
@@ -111,7 +125,7 @@ public class MaterialServiceImpl implements MaterialService {
                 .uom(material.getUom())
                 .stockType(material.getStockType())
                 .gstRate(material.getGstRate())
-                .categoryId(material.getCategoryId())
+                .categoryId(material.getCategory() != null ? material.getCategory().getId() : null)
                 .closed(material.getClosed())
                 .availableQty(onHand(material.getId()))
                 .attributes(material.getAttributes())

@@ -6,8 +6,6 @@ import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.Set;
-
 @Getter
 @Setter
 public class RegisterRequest {
@@ -26,7 +24,4 @@ public class RegisterRequest {
     @NotBlank(message = "Password is required")
     @Size(min = 6, message = "Password must be at least 6 characters")
     private String password;
-
-    // Optional: e.g. ["ROLE_MANAGER", "ROLE_STAFF"]. Defaults to ROLE_STAFF when empty.
-    private Set<String> roles;
 }

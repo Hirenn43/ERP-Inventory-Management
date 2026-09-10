@@ -4,6 +4,7 @@ import com.erp.inventory.dto.request.ScheduleRequest;
 import com.erp.inventory.dto.response.ScheduleResponse;
 import com.erp.inventory.entity.Company;
 import com.erp.inventory.entity.Schedule;
+import com.erp.inventory.exception.DuplicateResourceException;
 import com.erp.inventory.exception.ResourceNotFoundException;
 import com.erp.inventory.repository.CompanyRepository;
 import com.erp.inventory.repository.ScheduleRepository;
@@ -25,6 +26,9 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Override
     @Transactional
     public ScheduleResponse create(ScheduleRequest request) {
+        if (scheduleRepository.existsByNameIgnoreCase(request.getName())) {
+            throw new DuplicateResourceException("Schedule already exists with name: " + request.getName());
+        }
         Schedule entity = Schedule.builder()
                 .company(resolveCompany(request.getCompanyId()))
                 .name(request.getName())
@@ -44,6 +48,9 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Transactional
     public ScheduleResponse update(Long id, ScheduleRequest request) {
         Schedule entity = findEntity(id);
+        if (scheduleRepository.existsByNameIgnoreCaseAndIdNot(request.getName(), id)) {
+            throw new DuplicateResourceException("Schedule already exists with name: " + request.getName());
+        }
         entity.setCompany(resolveCompany(request.getCompanyId()));
         entity.setName(request.getName());
         entity.setParentId(request.getParentId());

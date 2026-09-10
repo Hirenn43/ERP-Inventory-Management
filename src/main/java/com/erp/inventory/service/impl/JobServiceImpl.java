@@ -4,6 +4,7 @@ import com.erp.inventory.dto.request.JobRequest;
 import com.erp.inventory.dto.response.JobResponse;
 import com.erp.inventory.entity.Company;
 import com.erp.inventory.entity.Job;
+import com.erp.inventory.exception.DuplicateResourceException;
 import com.erp.inventory.exception.ResourceNotFoundException;
 import com.erp.inventory.repository.CompanyRepository;
 import com.erp.inventory.repository.JobRepository;
@@ -25,6 +26,9 @@ public class JobServiceImpl implements JobService {
     @Override
     @Transactional
     public JobResponse create(JobRequest request) {
+        if (jobRepository.existsByNameIgnoreCase(request.getName())) {
+            throw new DuplicateResourceException("Job already exists with name: " + request.getName());
+        }
         Job entity = Job.builder()
                 .company(resolveCompany(request.getCompanyId()))
                 .name(request.getName())
@@ -41,6 +45,9 @@ public class JobServiceImpl implements JobService {
     @Transactional
     public JobResponse update(Long id, JobRequest request) {
         Job entity = findEntity(id);
+        if (jobRepository.existsByNameIgnoreCaseAndIdNot(request.getName(), id)) {
+            throw new DuplicateResourceException("Job already exists with name: " + request.getName());
+        }
         entity.setCompany(resolveCompany(request.getCompanyId()));
         entity.setName(request.getName());
         entity.setDescription(request.getDescription());

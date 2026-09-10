@@ -4,6 +4,7 @@ import com.erp.inventory.dto.request.VehicleRequest;
 import com.erp.inventory.dto.response.VehicleResponse;
 import com.erp.inventory.entity.Company;
 import com.erp.inventory.entity.Vehicle;
+import com.erp.inventory.exception.DuplicateResourceException;
 import com.erp.inventory.exception.ResourceNotFoundException;
 import com.erp.inventory.repository.CompanyRepository;
 import com.erp.inventory.repository.VehicleRepository;
@@ -25,6 +26,9 @@ public class VehicleServiceImpl implements VehicleService {
     @Override
     @Transactional
     public VehicleResponse create(VehicleRequest request) {
+        if (vehicleRepository.existsByNameIgnoreCase(request.getName())) {
+            throw new DuplicateResourceException("Vehicle already exists with name: " + request.getName());
+        }
         Vehicle entity = Vehicle.builder()
                 .company(resolveCompany(request.getCompanyId()))
                 .name(request.getName())
@@ -45,6 +49,9 @@ public class VehicleServiceImpl implements VehicleService {
     @Transactional
     public VehicleResponse update(Long id, VehicleRequest request) {
         Vehicle entity = findEntity(id);
+        if (vehicleRepository.existsByNameIgnoreCaseAndIdNot(request.getName(), id)) {
+            throw new DuplicateResourceException("Vehicle already exists with name: " + request.getName());
+        }
         entity.setCompany(resolveCompany(request.getCompanyId()));
         entity.setName(request.getName());
         entity.setOwnerName(request.getOwnerName());

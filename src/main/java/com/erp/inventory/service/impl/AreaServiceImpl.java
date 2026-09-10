@@ -4,6 +4,7 @@ import com.erp.inventory.dto.request.AreaRequest;
 import com.erp.inventory.dto.response.AreaResponse;
 import com.erp.inventory.entity.Company;
 import com.erp.inventory.entity.Area;
+import com.erp.inventory.exception.DuplicateResourceException;
 import com.erp.inventory.exception.ResourceNotFoundException;
 import com.erp.inventory.repository.CompanyRepository;
 import com.erp.inventory.repository.AreaRepository;
@@ -25,6 +26,9 @@ public class AreaServiceImpl implements AreaService {
     @Override
     @Transactional
     public AreaResponse create(AreaRequest request) {
+        if (areaRepository.existsByNameIgnoreCase(request.getName())) {
+            throw new DuplicateResourceException("Area already exists with name: " + request.getName());
+        }
         Area entity = Area.builder()
                 .company(resolveCompany(request.getCompanyId()))
                 .name(request.getName())
@@ -39,6 +43,9 @@ public class AreaServiceImpl implements AreaService {
     @Transactional
     public AreaResponse update(Long id, AreaRequest request) {
         Area entity = findEntity(id);
+        if (areaRepository.existsByNameIgnoreCaseAndIdNot(request.getName(), id)) {
+            throw new DuplicateResourceException("Area already exists with name: " + request.getName());
+        }
         entity.setCompany(resolveCompany(request.getCompanyId()));
         entity.setName(request.getName());
         entity.setContactMobile(request.getContactMobile());

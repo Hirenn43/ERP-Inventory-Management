@@ -24,6 +24,12 @@ public class ProductComponentController {
         return ResponseEntity.status(HttpStatus.CREATED).body(productComponentService.create(request));
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<ProductComponentResponse> update(@PathVariable Long id,
+                                                          @Valid @RequestBody ProductComponentRequest request) {
+        return ResponseEntity.ok(productComponentService.update(id, request));
+    }
+
     @GetMapping("/product/{productId}")
     public ResponseEntity<List<ProductComponentResponse>> getByProduct(@PathVariable Long productId) {
         return ResponseEntity.ok(productComponentService.getByProduct(productId));

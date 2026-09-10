@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -21,7 +22,10 @@ import java.util.Map;
  *  OrderFulfillmentEvent rows (ordered qty is here; completed/dispatched/settled/returned qty each
  *  accumulate independently in the events, since real orders fulfill and return in partial batches). */
 @Entity
-@Table(name = "orders")
+@Table(name = "orders", indexes = {
+        @Index(name = "idx_orders_party", columnList = "party_id"),
+        @Index(name = "idx_orders_product", columnList = "product_id")
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -32,6 +36,11 @@ public class Order {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Version
+    @Column(nullable = false)
+    @ColumnDefault("0")
+    private Long version;
 
     @Column(nullable = false, unique = true, length = 40)
     private String orderNumber;

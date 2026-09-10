@@ -8,12 +8,14 @@ import com.erp.inventory.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.Set;
 
 @Component
+@Profile("!prod")
 @RequiredArgsConstructor
 @Slf4j
 public class DataSeeder implements CommandLineRunner {
@@ -40,7 +42,8 @@ public class DataSeeder implements CommandLineRunner {
                     .enabled(true)
                     .build();
             userRepository.save(admin);
-            log.info("Seeded default admin user -> username: admin, password: Admin@123 (change this in production)");
+            log.info("Seeded default admin user (username: admin) for non-prod profile. "
+                    + "See project docs for the default password; change it before any shared deployment.");
         }
     }
 }

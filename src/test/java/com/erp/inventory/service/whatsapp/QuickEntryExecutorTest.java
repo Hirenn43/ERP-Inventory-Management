@@ -25,6 +25,7 @@ import com.erp.inventory.service.ProductService;
 import com.erp.inventory.service.ScheduleService;
 import com.erp.inventory.service.TransporterService;
 import com.erp.inventory.service.VehicleService;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -60,9 +61,11 @@ class QuickEntryExecutorTest {
     @Mock VehicleService vehicleService;
 
     QuickEntryExecutor executor() {
-        return new QuickEntryExecutor(orderService, materialStockMovementService, partyService, productService,
-                brokerService, areaService, scheduleService, jobService, designService, transporterService,
-                vehicleService);
+        QuickEntryExecutor e = new QuickEntryExecutor(orderService, materialStockMovementService, partyService,
+                productService, brokerService, areaService, scheduleService, jobService, designService,
+                transporterService, vehicleService, new ObjectMapper().findAndRegisterModules());
+        e.initMapper();
+        return e;
     }
 
     private final WhatsappUserLink link = WhatsappUserLink.builder()

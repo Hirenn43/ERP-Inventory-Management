@@ -83,12 +83,17 @@ public class FieldInterpreter {
     }
 
     private Outcome interpretNumber(String field, String text) {
-        String cleaned = text.replaceAll("[^0-9.]", "");
+        String trimmed = text.trim();
+        boolean negative = trimmed.startsWith("-");
+        String cleaned = trimmed.replaceAll("[^0-9.]", "");
         if (cleaned.isEmpty() || cleaned.equals(".")) {
             return Outcome.failed("Enter a number, e.g. 1250.");
         }
         try {
             BigDecimal value = new BigDecimal(cleaned);
+            if (negative) {
+                value = value.negate();
+            }
             if (POSITIVE_NUMBER_FIELDS.contains(field) && value.signum() <= 0) {
                 return Outcome.failed("Quantity must be greater than zero.");
             }

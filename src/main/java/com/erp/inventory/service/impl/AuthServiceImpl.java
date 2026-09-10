@@ -8,6 +8,7 @@ import com.erp.inventory.entity.Role;
 import com.erp.inventory.entity.User;
 import com.erp.inventory.entity.enums.RoleName;
 import com.erp.inventory.exception.DuplicateResourceException;
+import com.erp.inventory.exception.TokenRefreshException;
 import com.erp.inventory.repository.RoleRepository;
 import com.erp.inventory.repository.UserRepository;
 import com.erp.inventory.security.JwtService;
@@ -41,14 +42,16 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public AuthResponse register(RegisterRequest request) {
-        if (userRepository.existsByUsername(request.getUsername())) {
-            throw new DuplicateResourceException("Username is already taken: " + request.getUsername());
-        }
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new DuplicateResourceException("Email is already registered: " + request.getEmail());
+        // Single generic message for both cases to avoid username / email enumeration.
+        if (userRepository.existsByUsername(request.getUsername())
+                || userRepository.existsByEmail(request.getEmail())) {
+            throw new DuplicateResourceException("Username or email is already in use");
         }
 
-        Set<Role> roles = resolveRoles(request.getRoles());
+        // Self-service registration always creates a plain staff account.
+        // Elevated roles must be granted by an administrator, never requested by the caller.
+        Set<Role> roles = new HashSet<>();
+        roles.add(getOrCreateRole(RoleName.ROLE_STAFF));
 
         User user = User.builder()
                 .fullName(request.getFullName())
@@ -81,27 +84,20 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse refresh(RefreshTokenRequest request) {
-        String username = jwtService.extractUsername(request.getRefreshToken());
+        String refreshToken = request.getRefreshToken();
+
+        if (!jwtService.isRefreshToken(refreshToken)) {
+            throw new TokenRefreshException("Provided token is not a refresh token");
+        }
+
+        String username = jwtService.extractUsername(refreshToken);
         UserPrincipal principal = (UserPrincipal) userDetailsService.loadUserByUsername(username);
 
-        if (!jwtService.isTokenValid(request.getRefreshToken(), principal)) {
-            throw new BadCredentialsException("Refresh token is invalid or expired");
+        if (!jwtService.isTokenValid(refreshToken, principal)) {
+            throw new TokenRefreshException("Refresh token is invalid or expired");
         }
 
         return buildAuthResponse(principal);
-    }
-
-    private Set<Role> resolveRoles(Set<String> requestedRoles) {
-        Set<Role> roles = new HashSet<>();
-        if (requestedRoles == null || requestedRoles.isEmpty()) {
-            roles.add(getOrCreateRole(RoleName.ROLE_STAFF));
-            return roles;
-        }
-        for (String roleName : requestedRoles) {
-            RoleName resolved = RoleName.valueOf(roleName.trim().toUpperCase());
-            roles.add(getOrCreateRole(resolved));
-        }
-        return roles;
     }
 
     private Role getOrCreateRole(RoleName roleName) {

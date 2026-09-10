@@ -4,6 +4,7 @@ import com.erp.inventory.dto.request.DesignRequest;
 import com.erp.inventory.dto.response.DesignResponse;
 import com.erp.inventory.entity.Company;
 import com.erp.inventory.entity.Design;
+import com.erp.inventory.exception.DuplicateResourceException;
 import com.erp.inventory.exception.ResourceNotFoundException;
 import com.erp.inventory.repository.CompanyRepository;
 import com.erp.inventory.repository.DesignRepository;
@@ -25,6 +26,9 @@ public class DesignServiceImpl implements DesignService {
     @Override
     @Transactional
     public DesignResponse create(DesignRequest request) {
+        if (designRepository.existsByNameIgnoreCase(request.getName())) {
+            throw new DuplicateResourceException("Design already exists with name: " + request.getName());
+        }
         Design entity = Design.builder()
                 .company(resolveCompany(request.getCompanyId()))
                 .name(request.getName())
@@ -42,6 +46,9 @@ public class DesignServiceImpl implements DesignService {
     @Transactional
     public DesignResponse update(Long id, DesignRequest request) {
         Design entity = findEntity(id);
+        if (designRepository.existsByNameIgnoreCaseAndIdNot(request.getName(), id)) {
+            throw new DuplicateResourceException("Design already exists with name: " + request.getName());
+        }
         entity.setCompany(resolveCompany(request.getCompanyId()));
         entity.setName(request.getName());
         entity.setDescription(request.getDescription());

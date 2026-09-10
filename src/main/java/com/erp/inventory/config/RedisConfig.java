@@ -2,7 +2,6 @@ package com.erp.inventory.config;
 
 import com.erp.inventory.service.whatsapp.WaConversation;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -14,10 +13,10 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 public class RedisConfig {
 
     @Bean
-    public RedisTemplate<String, WaConversation> waConversationRedisTemplate(RedisConnectionFactory cf) {
-        ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
+    public RedisTemplate<String, WaConversation> waConversationRedisTemplate(RedisConnectionFactory cf,
+                                                                            ObjectMapper objectMapper) {
         Jackson2JsonRedisSerializer<WaConversation> valueSerializer =
-                new Jackson2JsonRedisSerializer<>(mapper, WaConversation.class);
+                new Jackson2JsonRedisSerializer<>(objectMapper, WaConversation.class);
 
         RedisTemplate<String, WaConversation> template = new RedisTemplate<>();
         template.setConnectionFactory(cf);

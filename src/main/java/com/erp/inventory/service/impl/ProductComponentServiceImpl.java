@@ -5,6 +5,7 @@ import com.erp.inventory.dto.response.ProductComponentResponse;
 import com.erp.inventory.entity.Material;
 import com.erp.inventory.entity.Product;
 import com.erp.inventory.entity.ProductComponent;
+import com.erp.inventory.exception.DuplicateResourceException;
 import com.erp.inventory.exception.ResourceNotFoundException;
 import com.erp.inventory.repository.MaterialRepository;
 import com.erp.inventory.repository.ProductComponentRepository;
@@ -32,6 +33,11 @@ public class ProductComponentServiceImpl implements ProductComponentService {
         Material material = materialRepository.findById(request.getMaterialId())
                 .orElseThrow(() -> ResourceNotFoundException.of("Material", request.getMaterialId()));
 
+        if (productComponentRepository.existsByProductIdAndSlotNoIgnoreCase(product.getId(), request.getSlotNo())) {
+            throw new DuplicateResourceException(
+                    "Slot " + request.getSlotNo() + " already has a component for this product");
+        }
+
         ProductComponent component = ProductComponent.builder()
                 .product(product)
                 .slotNo(request.getSlotNo())
@@ -40,6 +46,29 @@ public class ProductComponentServiceImpl implements ProductComponentService {
                 .build();
 
         return toResponse(productComponentRepository.save(component));
+    }
+
+    @Override
+    @Transactional
+    public ProductComponentResponse update(Long id, ProductComponentRequest request) {
+        ProductComponent component = productComponentRepository.findById(id)
+                .orElseThrow(() -> ResourceNotFoundException.of("ProductComponent", id));
+        Product product = productRepository.findById(request.getProductId())
+                .orElseThrow(() -> ResourceNotFoundException.of("Product", request.getProductId()));
+        Material material = materialRepository.findById(request.getMaterialId())
+                .orElseThrow(() -> ResourceNotFoundException.of("Material", request.getMaterialId()));
+
+        if (productComponentRepository.existsByProductIdAndSlotNoIgnoreCaseAndIdNot(
+                product.getId(), request.getSlotNo(), id)) {
+            throw new DuplicateResourceException(
+                    "Slot " + request.getSlotNo() + " already has a component for this product");
+        }
+
+        component.setProduct(product);
+        component.setSlotNo(request.getSlotNo());
+        component.setMaterial(material);
+        component.setQuantityPerUnit(request.getQuantityPerUnit());
+        return toResponse(component);
     }
 
     @Override

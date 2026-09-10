@@ -7,4 +7,8 @@ import java.util.List;
 
 public interface ProductComponentRepository extends JpaRepository<ProductComponent, Long> {
     List<ProductComponent> findByProductId(Long productId);
+
+    boolean existsByProductIdAndSlotNoIgnoreCase(Long productId, String slotNo);
+
+    boolean existsByProductIdAndSlotNoIgnoreCaseAndIdNot(Long productId, String slotNo, Long id);
 }

@@ -12,6 +12,11 @@ spring:
     redis:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+  jpa:
+    hibernate:
+      ddl-auto: validate   # Liquibase owns the schema; Hibernate only cross-checks the mapping
 
 springdoc:
   swagger-ui:
@@ -21,7 +26,7 @@ springdoc:
 
 app:
   jwt:
-    secret: ${JWT_SECRET:404E635266556A586E3272357538782F413F4428472B4B6250645367566B59}
+    secret: ${JWT_SECRET:}   # REQUIRED at boot (>= 32 bytes); no fallback. Dev profile supplies a throwaway value.
     access-token-expiration-ms: ${JWT_ACCESS_EXPIRATION:3600000}      # 1 hour
     refresh-token-expiration-ms: ${JWT_REFRESH_EXPIRATION:604800000} # 7 days
   quick-entry:

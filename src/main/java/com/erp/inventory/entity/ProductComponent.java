@@ -12,7 +12,9 @@ import java.math.BigDecimal;
 /** Bill-of-materials line: which Material fills which slot of a Product. Generalizes the yarn app's
  *  per-design "Matching" table (feeder -> color code). */
 @Entity
-@Table(name = "product_components")
+@Table(name = "product_components",
+        uniqueConstraints = @UniqueConstraint(name = "uk_product_component_slot",
+                columnNames = {"product_id", "slot_no"}))
 @Getter
 @Setter
 @NoArgsConstructor

@@ -7,6 +7,7 @@ import java.util.List;
 
 public interface ProductComponentService {
     ProductComponentResponse create(ProductComponentRequest request);
+    ProductComponentResponse update(Long id, ProductComponentRequest request);
     List<ProductComponentResponse> getByProduct(Long productId);
     void delete(Long id);
 }

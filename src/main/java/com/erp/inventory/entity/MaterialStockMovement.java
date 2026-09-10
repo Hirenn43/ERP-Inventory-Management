@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -19,7 +20,12 @@ import java.util.Map;
 /** Raw-material purchase/sale ledger - replaces the old PurchaseOrder/SalesOrder pair for materials.
  *  IN = purchased from the party, OUT = sold to the party. */
 @Entity
-@Table(name = "material_stock_movements")
+@Table(name = "material_stock_movements", indexes = {
+        // On-hand is Σ over the whole ledger for a material on every read (sumSignedQuantityByMaterialId,
+        // sumSignedQuantityGrouped, findByMaterialIdOrderByDateDesc). Postgres does not auto-index FKs.
+        @Index(name = "idx_msm_material_date", columnList = "material_id, date"),
+        @Index(name = "idx_msm_party", columnList = "party_id")
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -30,6 +36,11 @@ public class MaterialStockMovement {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Version
+    @Column(nullable = false)
+    @ColumnDefault("0")
+    private Long version;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "material_id", nullable = false)

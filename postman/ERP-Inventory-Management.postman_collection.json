@@ -136,7 +136,7 @@
             },
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"fullName\": \"Meera Manager\",\n  \"username\": \"{{newUserUsername}}\",\n  \"email\": \"meera@inventory.local\",\n  \"password\": \"{{newUserPassword}}\",\n  \"roles\": [\"ROLE_MANAGER\"]\n}"
+              "raw": "{\n  \"fullName\": \"Meera Staff\",\n  \"username\": \"{{newUserUsername}}\",\n  \"email\": \"meera@inventory.local\",\n  \"password\": \"{{newUserPassword}}\"\n}"
             }
           },
           "event": [

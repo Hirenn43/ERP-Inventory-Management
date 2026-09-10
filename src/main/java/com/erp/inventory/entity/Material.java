@@ -8,6 +8,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
@@ -17,7 +18,10 @@ import java.util.Map;
 /** A raw material / input variant (e.g. "GOLD-150-POLY1" yarn) - distinct from Product, which is what
  *  gets sold. Purchased and consumed rather than designed and sold. */
 @Entity
-@Table(name = "materials")
+@Table(name = "materials", indexes = {
+        @Index(name = "idx_materials_company", columnList = "company_id"),
+        @Index(name = "idx_materials_category", columnList = "category_id")
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -29,11 +33,16 @@ public class Material {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Version
+    @Column(nullable = false)
+    @ColumnDefault("0")
+    private Long version;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id")
     private Company company;
 
-    @Column(nullable = false, length = 80)
+    @Column(nullable = false, length = 80, unique = true)
     private String code;
 
     @Column(length = 80)
@@ -59,8 +68,10 @@ public class Material {
     @Column(precision = 6, scale = 2)
     private BigDecimal gstRate;
 
-    /** Item Group - a {@link Category} id, resolved client-side. */
-    private Long categoryId;
+    /** Item Group. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private Category category;
 
     private Boolean closed;
 

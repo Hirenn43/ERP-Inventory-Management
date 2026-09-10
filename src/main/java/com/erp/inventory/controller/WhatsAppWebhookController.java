@@ -2,6 +2,7 @@ package com.erp.inventory.controller;
 
 import com.erp.inventory.config.WhatsAppProperties;
 import com.erp.inventory.dto.whatsapp.WaWebhookPayload;
+import com.erp.inventory.service.whatsapp.WebhookIdempotencyService;
 import com.erp.inventory.service.whatsapp.WhatsAppQuickEntryService;
 import com.erp.inventory.client.WhatsAppClient;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,6 +32,7 @@ public class WhatsAppWebhookController {
     private final WhatsAppQuickEntryService quickEntryService;
     private final WhatsAppClient whatsAppClient;
     private final ObjectMapper objectMapper;
+    private final WebhookIdempotencyService idempotencyService;
 
     /** Verification handshake Meta calls once when you register the callback URL. */
     @GetMapping
@@ -53,10 +55,26 @@ public class WhatsAppWebhookController {
                 return ResponseEntity.status(403).build();
             }
             WaWebhookPayload payload = objectMapper.readValue(rawBody, WaWebhookPayload.class);
-            payload.firstTextMessage().ifPresent(msg -> {
-                String reply = quickEntryService.handleInbound(msg.from(), msg.body());
-                whatsAppClient.sendText(msg.from(), reply);
-            });
+            for (WaWebhookPayload.TextMessage msg : payload.textMessages()) {
+                // Claim the id up-front and durably (own transaction). A retry or a concurrent
+                // redelivery that lost the race is skipped here, before any side effect.
+                boolean claimed = msg.id() != null && idempotencyService.tryClaim(msg.id());
+                if (msg.id() != null && !claimed) {
+                    log.info("WhatsApp webhook: skipping already-processed message {}", msg.id());
+                    continue;
+                }
+                try {
+                    String reply = quickEntryService.handleInbound(msg.from(), msg.body());
+                    whatsAppClient.sendText(msg.from(), reply);
+                } catch (RuntimeException ex) {
+                    // One bad message must not block the rest of the batch. Release the claim so
+                    // Meta's redelivery retries just this message.
+                    log.error("WhatsApp webhook: message {} from {} failed", msg.id(), msg.from(), ex);
+                    if (claimed) {
+                        idempotencyService.release(msg.id());
+                    }
+                }
+            }
         } catch (Exception e) {
             log.error("WhatsApp webhook processing error", e);
         }

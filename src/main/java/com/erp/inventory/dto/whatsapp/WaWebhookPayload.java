@@ -5,9 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
-import java.util.Optional;
 
-/** Just enough of the Meta WhatsApp webhook body to pull the first inbound text message.
+/** Just enough of the Meta WhatsApp webhook body to pull the inbound text messages.
  *  Status callbacks and other fields are ignored. */
 @Getter
 @Setter
@@ -16,10 +15,11 @@ public class WaWebhookPayload {
 
     private List<Entry> entry;
 
-    /** First inbound text message in the payload, if any. */
-    public Optional<TextMessage> firstTextMessage() {
+    /** Every inbound text message in the payload, in order. Meta batches multiple messages
+     *  into one POST, so all of them must be processed - not just the first. */
+    public List<TextMessage> textMessages() {
         if (entry == null) {
-            return Optional.empty();
+            return List.of();
         }
         return entry.stream()
                 .filter(e -> e.changes != null)
@@ -28,11 +28,12 @@ public class WaWebhookPayload {
                 .filter(v -> v != null && v.messages != null)
                 .flatMap(v -> v.messages.stream())
                 .filter(m -> "text".equals(m.type) && m.text != null && m.text.body != null)
-                .map(m -> new TextMessage(m.from, m.text.body))
-                .findFirst();
+                .map(m -> new TextMessage(m.id, m.from, m.text.body))
+                .toList();
     }
 
-    public record TextMessage(String from, String body) {
+    /** Meta's message id, used for webhook idempotency. May be null on malformed payloads. */
+    public record TextMessage(String id, String from, String body) {
     }
 
     @Getter
@@ -60,6 +61,7 @@ public class WaWebhookPayload {
     @Setter
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Message {
+        private String id;
         private String from;
         private String type;
         private Text text;

@@ -76,7 +76,8 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<ProductResponse> getAll() {
-        return productRepository.findAll().stream().map(this::toResponse).toList();
+        // Soft-deleted (active = false) products are hidden from list views.
+        return productRepository.findByActiveTrue().stream().map(this::toResponse).toList();
     }
 
     @Override

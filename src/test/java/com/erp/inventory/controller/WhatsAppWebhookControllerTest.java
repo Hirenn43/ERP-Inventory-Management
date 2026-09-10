@@ -2,6 +2,7 @@ package com.erp.inventory.controller;
 
 import com.erp.inventory.client.WhatsAppClient;
 import com.erp.inventory.config.WhatsAppProperties;
+import com.erp.inventory.service.whatsapp.WebhookIdempotencyService;
 import com.erp.inventory.service.whatsapp.WhatsAppQuickEntryService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +28,7 @@ class WhatsAppWebhookControllerTest {
 
     @Mock WhatsAppQuickEntryService quickEntryService;
     @Mock WhatsAppClient whatsAppClient;
+    @Mock WebhookIdempotencyService idempotencyService;
 
     WhatsAppProperties properties;
     WhatsAppWebhookController controller;
@@ -38,7 +40,8 @@ class WhatsAppWebhookControllerTest {
     @BeforeEach
     void setUp() {
         properties = new WhatsAppProperties();
-        controller = new WhatsAppWebhookController(properties, quickEntryService, whatsAppClient, new ObjectMapper());
+        controller = new WhatsAppWebhookController(properties, quickEntryService, whatsAppClient, new ObjectMapper(),
+                idempotencyService);
     }
 
     @Test

@@ -4,6 +4,7 @@ import com.erp.inventory.dto.request.BrokerRequest;
 import com.erp.inventory.dto.response.BrokerResponse;
 import com.erp.inventory.entity.Company;
 import com.erp.inventory.entity.Broker;
+import com.erp.inventory.exception.DuplicateResourceException;
 import com.erp.inventory.exception.ResourceNotFoundException;
 import com.erp.inventory.repository.CompanyRepository;
 import com.erp.inventory.repository.BrokerRepository;
@@ -25,6 +26,9 @@ public class BrokerServiceImpl implements BrokerService {
     @Override
     @Transactional
     public BrokerResponse create(BrokerRequest request) {
+        if (brokerRepository.existsByNameIgnoreCase(request.getName())) {
+            throw new DuplicateResourceException("Broker already exists with name: " + request.getName());
+        }
         Broker entity = Broker.builder()
                 .company(resolveCompany(request.getCompanyId()))
                 .name(request.getName())
@@ -48,6 +52,9 @@ public class BrokerServiceImpl implements BrokerService {
     @Transactional
     public BrokerResponse update(Long id, BrokerRequest request) {
         Broker entity = findEntity(id);
+        if (brokerRepository.existsByNameIgnoreCaseAndIdNot(request.getName(), id)) {
+            throw new DuplicateResourceException("Broker already exists with name: " + request.getName());
+        }
         entity.setCompany(resolveCompany(request.getCompanyId()));
         entity.setName(request.getName());
         entity.setAddress1(request.getAddress1());
