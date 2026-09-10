@@ -19,7 +19,7 @@ import java.util.List;
 /** Finished-goods orders. Fulfillment is tracked as a ledger of events (see /fulfillment-events),
  *  not a single status column - an order can be partially completed, dispatched, settled and returned. */
 @RestController
-@RequestMapping("/api/orders")
+@RequestMapping("/orders")
 @RequiredArgsConstructor
 public class OrderController {
 

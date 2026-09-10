@@ -13,7 +13,7 @@ import java.util.List;
 
 /** Raw-material purchase/sale ledger - direction IN (purchase) or OUT (sale). */
 @RestController
-@RequestMapping("/api/material-stock-movements")
+@RequestMapping("/material-stock-movements")
 @RequiredArgsConstructor
 public class MaterialStockMovementController {
 

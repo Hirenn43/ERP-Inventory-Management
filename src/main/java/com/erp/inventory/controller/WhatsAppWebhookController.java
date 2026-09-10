@@ -22,7 +22,7 @@ import java.util.HexFormat;
 /** Meta WhatsApp Cloud API webhook. Public (see SecurityConfig) - POST is protected by the
  *  {@code X-Hub-Signature-256} HMAC instead of a JWT. */
 @RestController
-@RequestMapping("/api/whatsapp/webhook")
+@RequestMapping("/whatsapp/webhook")
 @RequiredArgsConstructor
 public class WhatsAppWebhookController {
 

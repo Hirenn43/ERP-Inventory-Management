@@ -13,7 +13,7 @@ import java.util.List;
 
 /** Bill-of-materials lines: which Material fills which slot of a Product. */
 @RestController
-@RequestMapping("/api/product-components")
+@RequestMapping("/product-components")
 @RequiredArgsConstructor
 public class ProductComponentController {
 

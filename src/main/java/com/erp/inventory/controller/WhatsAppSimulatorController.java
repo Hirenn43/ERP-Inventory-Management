@@ -14,7 +14,7 @@ import java.util.Map;
 /** Dev-only: drive the WhatsApp quick-entry flow without Meta. POST a phone + message, get the
  *  bot's reply. Registered only under the {@code dev} profile. Public (see SecurityConfig). */
 @RestController
-@RequestMapping("/api/whatsapp/simulate")
+@RequestMapping("/whatsapp/simulate")
 @RequiredArgsConstructor
 @Profile("dev")
 public class WhatsAppSimulatorController {

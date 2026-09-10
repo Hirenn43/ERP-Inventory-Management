@@ -14,7 +14,7 @@ import java.util.List;
 /** Admin CRUD for phone -> user/company mappings used by the WhatsApp quick-entry bot.
  *  JWT-protected (not in SecurityConfig's public list). */
 @RestController
-@RequestMapping("/api/whatsapp/links")
+@RequestMapping("/whatsapp/links")
 @RequiredArgsConstructor
 public class WhatsappUserLinkController {
 

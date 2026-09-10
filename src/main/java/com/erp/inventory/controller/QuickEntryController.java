@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 /** Natural-language quick entry. {@code /parse} only interprets text into a draft - the frontend
  *  submits it through the normal create endpoints. */
 @RestController
-@RequestMapping("/api/quick-entry")
+@RequestMapping("/quick-entry")
 @RequiredArgsConstructor
 public class QuickEntryController {
 
