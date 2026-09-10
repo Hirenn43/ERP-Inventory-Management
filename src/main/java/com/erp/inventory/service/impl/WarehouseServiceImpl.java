@@ -8,6 +8,7 @@ import com.erp.inventory.dto.response.WarehouseResponse;
 import com.erp.inventory.entity.Warehouse;
 import com.erp.inventory.exception.ResourceNotFoundException;
 import com.erp.inventory.repository.WarehouseRepository;
+import com.erp.inventory.service.attributes.AttributeValidator;
 import com.erp.inventory.service.WarehouseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import java.util.List;
 public class WarehouseServiceImpl implements WarehouseService {
 
     private final WarehouseRepository warehouseRepository;
+    private final AttributeValidator attributeValidator;
 
     @Override
     @Transactional
@@ -28,7 +30,7 @@ public class WarehouseServiceImpl implements WarehouseService {
         Warehouse warehouse = Warehouse.builder()
                 .name(request.getName())
                 .location(request.getLocation())
-                .attributes(request.getAttributes() != null ? request.getAttributes() : new HashMap<>())
+                .attributes(attributeValidator.validate("warehouses", request.getAttributes(), null))
                 .build();
         return toResponse(warehouseRepository.save(warehouse));
     }
@@ -40,7 +42,7 @@ public class WarehouseServiceImpl implements WarehouseService {
         warehouse.setName(request.getName());
         warehouse.setLocation(request.getLocation());
         if (request.getAttributes() != null) {
-            warehouse.setAttributes(request.getAttributes());
+            warehouse.setAttributes(attributeValidator.validate("warehouses", request.getAttributes(), id));
         }
         return toResponse(warehouse);
     }

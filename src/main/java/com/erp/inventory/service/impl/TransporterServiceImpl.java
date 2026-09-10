@@ -12,6 +12,7 @@ import com.erp.inventory.exception.ResourceNotFoundException;
 import com.erp.inventory.repository.CompanyRepository;
 import com.erp.inventory.repository.TransporterRepository;
 import com.erp.inventory.security.TenantContext;
+import com.erp.inventory.service.attributes.AttributeValidator;
 import com.erp.inventory.service.TransporterService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ import java.util.List;
 public class TransporterServiceImpl implements TransporterService {
 
     private final TransporterRepository transporterRepository;
+    private final AttributeValidator attributeValidator;
     private final CompanyRepository companyRepository;
 
     @Override
@@ -44,7 +46,7 @@ public class TransporterServiceImpl implements TransporterService {
                 .contactPerson(request.getContactPerson())
                 .gstin(request.getGstin())
                 .transportMode(request.getTransportMode())
-                .attributes(request.getAttributes() != null ? request.getAttributes() : new HashMap<>())
+                .attributes(attributeValidator.validate("transporters", request.getAttributes(), null))
                 .build();
         return toResponse(transporterRepository.save(entity));
     }
@@ -67,7 +69,7 @@ public class TransporterServiceImpl implements TransporterService {
         entity.setGstin(request.getGstin());
         entity.setTransportMode(request.getTransportMode());
         if (request.getAttributes() != null) {
-            entity.setAttributes(request.getAttributes());
+            entity.setAttributes(attributeValidator.validate("transporters", request.getAttributes(), id));
         }
         return toResponse(entity);
     }

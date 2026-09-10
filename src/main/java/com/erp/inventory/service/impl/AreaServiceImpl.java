@@ -12,6 +12,7 @@ import com.erp.inventory.exception.ResourceNotFoundException;
 import com.erp.inventory.repository.CompanyRepository;
 import com.erp.inventory.repository.AreaRepository;
 import com.erp.inventory.security.TenantContext;
+import com.erp.inventory.service.attributes.AttributeValidator;
 import com.erp.inventory.service.AreaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ import java.util.List;
 public class AreaServiceImpl implements AreaService {
 
     private final AreaRepository areaRepository;
+    private final AttributeValidator attributeValidator;
     private final CompanyRepository companyRepository;
 
     @Override
@@ -38,7 +40,7 @@ public class AreaServiceImpl implements AreaService {
                 .name(request.getName())
                 .contactMobile(request.getContactMobile())
                 .rate(request.getRate())
-                .attributes(request.getAttributes() != null ? request.getAttributes() : new HashMap<>())
+                .attributes(attributeValidator.validate("areas", request.getAttributes(), null))
                 .build();
         return toResponse(areaRepository.save(entity));
     }
@@ -55,7 +57,7 @@ public class AreaServiceImpl implements AreaService {
         entity.setContactMobile(request.getContactMobile());
         entity.setRate(request.getRate());
         if (request.getAttributes() != null) {
-            entity.setAttributes(request.getAttributes());
+            entity.setAttributes(attributeValidator.validate("areas", request.getAttributes(), id));
         }
         return toResponse(entity);
     }

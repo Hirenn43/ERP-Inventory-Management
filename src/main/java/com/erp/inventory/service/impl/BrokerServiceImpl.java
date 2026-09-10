@@ -12,6 +12,7 @@ import com.erp.inventory.exception.ResourceNotFoundException;
 import com.erp.inventory.repository.CompanyRepository;
 import com.erp.inventory.repository.BrokerRepository;
 import com.erp.inventory.security.TenantContext;
+import com.erp.inventory.service.attributes.AttributeValidator;
 import com.erp.inventory.service.BrokerService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ import java.util.List;
 public class BrokerServiceImpl implements BrokerService {
 
     private final BrokerRepository brokerRepository;
+    private final AttributeValidator attributeValidator;
     private final CompanyRepository companyRepository;
 
     @Override
@@ -47,7 +49,7 @@ public class BrokerServiceImpl implements BrokerService {
                 .email(request.getEmail())
                 .brokeragePct(request.getBrokeragePct())
                 .blacklisted(request.getBlacklisted())
-                .attributes(request.getAttributes() != null ? request.getAttributes() : new HashMap<>())
+                .attributes(attributeValidator.validate("brokers", request.getAttributes(), null))
                 .build();
         return toResponse(brokerRepository.save(entity));
     }
@@ -73,7 +75,7 @@ public class BrokerServiceImpl implements BrokerService {
         entity.setBrokeragePct(request.getBrokeragePct());
         entity.setBlacklisted(request.getBlacklisted());
         if (request.getAttributes() != null) {
-            entity.setAttributes(request.getAttributes());
+            entity.setAttributes(attributeValidator.validate("brokers", request.getAttributes(), id));
         }
         return toResponse(entity);
     }

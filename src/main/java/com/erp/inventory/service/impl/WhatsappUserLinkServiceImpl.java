@@ -87,7 +87,7 @@ public class WhatsappUserLinkServiceImpl implements WhatsappUserLinkService {
     }
 
     private User resolveUser(Long userId) {
-        return userRepository.findById(userId)
+        return userRepository.findOneById(userId)
                 .orElseThrow(() -> ResourceNotFoundException.of("User", userId));
     }
 

@@ -15,6 +15,7 @@ import com.erp.inventory.repository.CompanyRepository;
 import com.erp.inventory.repository.MaterialRepository;
 import com.erp.inventory.repository.MaterialStockMovementRepository;
 import com.erp.inventory.security.TenantContext;
+import com.erp.inventory.service.attributes.AttributeValidator;
 import com.erp.inventory.service.MaterialService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@ import java.util.List;
 public class MaterialServiceImpl implements MaterialService {
 
     private final MaterialRepository materialRepository;
+    private final AttributeValidator attributeValidator;
     private final CompanyRepository companyRepository;
     private final CategoryRepository categoryRepository;
     private final MaterialStockMovementRepository movementRepository;
@@ -51,7 +53,7 @@ public class MaterialServiceImpl implements MaterialService {
                 .gstRate(request.getGstRate())
                 .category(resolveCategory(request.getCategoryId()))
                 .closed(request.getClosed())
-                .attributes(request.getAttributes() != null ? request.getAttributes() : new HashMap<>())
+                .attributes(attributeValidator.validate("materials", request.getAttributes(), null))
                 .build();
         return toResponse(materialRepository.save(material));
     }
@@ -75,7 +77,7 @@ public class MaterialServiceImpl implements MaterialService {
         material.setCategory(resolveCategory(request.getCategoryId()));
         material.setClosed(request.getClosed());
         if (request.getAttributes() != null) {
-            material.setAttributes(request.getAttributes());
+            material.setAttributes(attributeValidator.validate("materials", request.getAttributes(), id));
         }
         return toResponse(material);
     }

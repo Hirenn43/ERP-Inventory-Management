@@ -12,6 +12,7 @@ import com.erp.inventory.exception.ResourceNotFoundException;
 import com.erp.inventory.repository.CompanyRepository;
 import com.erp.inventory.repository.ScheduleRepository;
 import com.erp.inventory.security.TenantContext;
+import com.erp.inventory.service.attributes.AttributeValidator;
 import com.erp.inventory.service.ScheduleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ import java.util.List;
 public class ScheduleServiceImpl implements ScheduleService {
 
     private final ScheduleRepository scheduleRepository;
+    private final AttributeValidator attributeValidator;
     private final CompanyRepository companyRepository;
 
     @Override
@@ -43,7 +45,7 @@ public class ScheduleServiceImpl implements ScheduleService {
                 .effectOnGp(request.getEffectOnGp())
                 .description(request.getDescription())
                 .scheduleType(request.getScheduleType())
-                .attributes(request.getAttributes() != null ? request.getAttributes() : new HashMap<>())
+                .attributes(attributeValidator.validate("schedules", request.getAttributes(), null))
                 .build();
         return toResponse(scheduleRepository.save(entity));
     }
@@ -65,7 +67,7 @@ public class ScheduleServiceImpl implements ScheduleService {
         entity.setDescription(request.getDescription());
         entity.setScheduleType(request.getScheduleType());
         if (request.getAttributes() != null) {
-            entity.setAttributes(request.getAttributes());
+            entity.setAttributes(attributeValidator.validate("schedules", request.getAttributes(), id));
         }
         return toResponse(entity);
     }

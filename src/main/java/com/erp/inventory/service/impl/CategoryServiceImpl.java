@@ -9,6 +9,7 @@ import com.erp.inventory.entity.Category;
 import com.erp.inventory.exception.DuplicateResourceException;
 import com.erp.inventory.exception.ResourceNotFoundException;
 import com.erp.inventory.repository.CategoryRepository;
+import com.erp.inventory.service.attributes.AttributeValidator;
 import com.erp.inventory.service.CategoryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,6 +24,7 @@ import java.util.Map;
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
+    private final AttributeValidator attributeValidator;
 
     @Override
     @Transactional
@@ -33,7 +35,7 @@ public class CategoryServiceImpl implements CategoryService {
         Category category = Category.builder()
                 .name(request.getName())
                 .description(request.getDescription())
-                .attributes(request.getAttributes() != null ? request.getAttributes() : new HashMap<>())
+                .attributes(attributeValidator.validate("categories", request.getAttributes(), null))
                 .build();
         return toResponse(categoryRepository.save(category));
     }
@@ -45,7 +47,7 @@ public class CategoryServiceImpl implements CategoryService {
         category.setName(request.getName());
         category.setDescription(request.getDescription());
         if (request.getAttributes() != null) {
-            category.setAttributes(request.getAttributes());
+            category.setAttributes(attributeValidator.validate("categories", request.getAttributes(), id));
         }
         return toResponse(category);
     }

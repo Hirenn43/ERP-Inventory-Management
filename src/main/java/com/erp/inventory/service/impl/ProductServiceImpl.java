@@ -14,6 +14,7 @@ import com.erp.inventory.repository.CategoryRepository;
 import com.erp.inventory.repository.CompanyRepository;
 import com.erp.inventory.repository.ProductRepository;
 import com.erp.inventory.security.TenantContext;
+import com.erp.inventory.service.attributes.AttributeValidator;
 import com.erp.inventory.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ import java.util.List;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
+    private final AttributeValidator attributeValidator;
     private final CategoryRepository categoryRepository;
     private final CompanyRepository companyRepository;
 
@@ -47,7 +49,7 @@ public class ProductServiceImpl implements ProductService {
                 .category(resolveCategory(request.getCategoryId()))
                 .company(resolveCompany(request.getCompanyId()))
                 .active(true)
-                .attributes(request.getAttributes() != null ? request.getAttributes() : new HashMap<>())
+                .attributes(attributeValidator.validate("products", request.getAttributes(), null))
                 .build();
 
         return toResponse(productRepository.save(product));
@@ -68,7 +70,7 @@ public class ProductServiceImpl implements ProductService {
         product.setCategory(resolveCategory(request.getCategoryId()));
         product.setCompany(resolveCompany(request.getCompanyId()));
         if (request.getAttributes() != null) {
-            product.setAttributes(request.getAttributes());
+            product.setAttributes(attributeValidator.validate("products", request.getAttributes(), id));
         }
         return toResponse(product);
     }

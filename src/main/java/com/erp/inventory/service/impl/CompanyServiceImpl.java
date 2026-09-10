@@ -9,6 +9,7 @@ import com.erp.inventory.entity.Company;
 import com.erp.inventory.exception.ResourceNotFoundException;
 import com.erp.inventory.repository.CompanyRepository;
 import com.erp.inventory.security.TenantContext;
+import com.erp.inventory.service.attributes.AttributeValidator;
 import com.erp.inventory.service.CompanyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ import java.util.List;
 public class CompanyServiceImpl implements CompanyService {
 
     private final CompanyRepository companyRepository;
+    private final AttributeValidator attributeValidator;
 
     @Override
     @Transactional
@@ -30,7 +32,7 @@ public class CompanyServiceImpl implements CompanyService {
                 .name(request.getName())
                 .address(request.getAddress())
                 .mobile(request.getMobile())
-                .attributes(request.getAttributes() != null ? request.getAttributes() : new HashMap<>())
+                .attributes(attributeValidator.validate("companies", request.getAttributes(), null))
                 .build();
         return toResponse(companyRepository.save(company));
     }
@@ -43,7 +45,7 @@ public class CompanyServiceImpl implements CompanyService {
         company.setAddress(request.getAddress());
         company.setMobile(request.getMobile());
         if (request.getAttributes() != null) {
-            company.setAttributes(request.getAttributes());
+            company.setAttributes(attributeValidator.validate("companies", request.getAttributes(), id));
         }
         return toResponse(company);
     }

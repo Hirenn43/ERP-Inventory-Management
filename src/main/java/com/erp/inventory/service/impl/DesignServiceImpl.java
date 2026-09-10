@@ -12,6 +12,7 @@ import com.erp.inventory.exception.ResourceNotFoundException;
 import com.erp.inventory.repository.CompanyRepository;
 import com.erp.inventory.repository.DesignRepository;
 import com.erp.inventory.security.TenantContext;
+import com.erp.inventory.service.attributes.AttributeValidator;
 import com.erp.inventory.service.DesignService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ import java.util.List;
 public class DesignServiceImpl implements DesignService {
 
     private final DesignRepository designRepository;
+    private final AttributeValidator attributeValidator;
     private final CompanyRepository companyRepository;
 
     @Override
@@ -41,7 +43,7 @@ public class DesignServiceImpl implements DesignService {
                 .rate(request.getRate())
                 .designGroup(request.getDesignGroup())
                 .closed(request.getClosed())
-                .attributes(request.getAttributes() != null ? request.getAttributes() : new HashMap<>())
+                .attributes(attributeValidator.validate("designs", request.getAttributes(), null))
                 .build();
         return toResponse(designRepository.save(entity));
     }
@@ -61,7 +63,7 @@ public class DesignServiceImpl implements DesignService {
         entity.setDesignGroup(request.getDesignGroup());
         entity.setClosed(request.getClosed());
         if (request.getAttributes() != null) {
-            entity.setAttributes(request.getAttributes());
+            entity.setAttributes(attributeValidator.validate("designs", request.getAttributes(), id));
         }
         return toResponse(entity);
     }

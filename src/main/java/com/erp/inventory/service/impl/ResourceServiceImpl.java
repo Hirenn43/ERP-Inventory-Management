@@ -11,6 +11,7 @@ import com.erp.inventory.exception.ResourceNotFoundException;
 import com.erp.inventory.repository.CompanyRepository;
 import com.erp.inventory.repository.ResourceRepository;
 import com.erp.inventory.security.TenantContext;
+import com.erp.inventory.service.attributes.AttributeValidator;
 import com.erp.inventory.service.ResourceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,6 +25,7 @@ import java.util.List;
 public class ResourceServiceImpl implements ResourceService {
 
     private final ResourceRepository resourceRepository;
+    private final AttributeValidator attributeValidator;
     private final CompanyRepository companyRepository;
 
     @Override
@@ -32,7 +34,7 @@ public class ResourceServiceImpl implements ResourceService {
         Resource resource = Resource.builder()
                 .company(resolveCompany(request.getCompanyId()))
                 .name(request.getName())
-                .attributes(request.getAttributes() != null ? request.getAttributes() : new HashMap<>())
+                .attributes(attributeValidator.validate("resources", request.getAttributes(), null))
                 .build();
         return toResponse(resourceRepository.save(resource));
     }
@@ -44,7 +46,7 @@ public class ResourceServiceImpl implements ResourceService {
         resource.setCompany(resolveCompany(request.getCompanyId()));
         resource.setName(request.getName());
         if (request.getAttributes() != null) {
-            resource.setAttributes(request.getAttributes());
+            resource.setAttributes(attributeValidator.validate("resources", request.getAttributes(), id));
         }
         return toResponse(resource);
     }

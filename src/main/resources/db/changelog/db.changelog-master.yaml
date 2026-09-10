@@ -7,3 +7,5 @@ databaseChangeLog:
       file: db/changelog/changes/003-version-not-null.sql
   - include:
       file: db/changelog/changes/004-users-company.sql
+  - include:
+      file: db/changelog/changes/005-support-module.sql

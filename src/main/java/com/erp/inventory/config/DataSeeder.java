@@ -40,13 +40,18 @@ public class DataSeeder implements CommandLineRunner {
                         Company.builder().name("Default Company").build()));
 
         if (!userRepository.existsByUsername("admin")) {
-            Role adminRole = roleRepository.findByName(RoleName.ROLE_ADMIN).orElseThrow();
+            // The seeded admin holds every admin role so all of Support is reachable in dev.
+            Set<Role> allAdminRoles = new java.util.HashSet<>();
+            for (RoleName rn : new RoleName[] {
+                    RoleName.ROLE_ADMIN, RoleName.ROLE_USER_ADMIN, RoleName.ROLE_MASTER_ADMIN }) {
+                roleRepository.findByName(rn).ifPresent(allAdminRoles::add);
+            }
             User admin = User.builder()
                     .fullName("System Administrator")
                     .username("admin")
                     .email("admin@inventory.local")
                     .password(passwordEncoder.encode("Admin@123"))
-                    .roles(Set.of(adminRole))
+                    .roles(allAdminRoles)
                     .company(defaultCompany)
                     .enabled(true)
                     .build();
@@ -62,5 +67,20 @@ public class DataSeeder implements CommandLineRunner {
                     u.setCompany(defaultCompany);
                     userRepository.save(u);
                 });
+
+        // Ensure the dev admin holds every admin role (covers admins seeded before the Support module).
+        userRepository.findByUsername("admin").ifPresent(admin -> {
+            boolean changed = false;
+            for (RoleName rn : new RoleName[] { RoleName.ROLE_USER_ADMIN, RoleName.ROLE_MASTER_ADMIN }) {
+                boolean has = admin.getRoles().stream().anyMatch(r -> r.getName() == rn);
+                if (!has) {
+                    roleRepository.findByName(rn).ifPresent(r -> admin.getRoles().add(r));
+                    changed = true;
+                }
+            }
+            if (changed) {
+                userRepository.save(admin);
+            }
+        });
     }
 }

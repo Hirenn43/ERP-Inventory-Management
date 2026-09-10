@@ -12,6 +12,7 @@ import com.erp.inventory.exception.ResourceNotFoundException;
 import com.erp.inventory.repository.CompanyRepository;
 import com.erp.inventory.repository.JobRepository;
 import com.erp.inventory.security.TenantContext;
+import com.erp.inventory.service.attributes.AttributeValidator;
 import com.erp.inventory.service.JobService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ import java.util.List;
 public class JobServiceImpl implements JobService {
 
     private final JobRepository jobRepository;
+    private final AttributeValidator attributeValidator;
     private final CompanyRepository companyRepository;
 
     @Override
@@ -40,7 +42,7 @@ public class JobServiceImpl implements JobService {
                 .rate(request.getRate())
                 .finishedGoodsType(request.getFinishedGoodsType())
                 .defaultRepeatIssue(request.getDefaultRepeatIssue())
-                .attributes(request.getAttributes() != null ? request.getAttributes() : new HashMap<>())
+                .attributes(attributeValidator.validate("jobs", request.getAttributes(), null))
                 .build();
         return toResponse(jobRepository.save(entity));
     }
@@ -59,7 +61,7 @@ public class JobServiceImpl implements JobService {
         entity.setFinishedGoodsType(request.getFinishedGoodsType());
         entity.setDefaultRepeatIssue(request.getDefaultRepeatIssue());
         if (request.getAttributes() != null) {
-            entity.setAttributes(request.getAttributes());
+            entity.setAttributes(attributeValidator.validate("jobs", request.getAttributes(), id));
         }
         return toResponse(entity);
     }

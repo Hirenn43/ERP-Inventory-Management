@@ -18,6 +18,7 @@ import com.erp.inventory.repository.CompanyRepository;
 import com.erp.inventory.repository.PartyRepository;
 import com.erp.inventory.repository.ScheduleRepository;
 import com.erp.inventory.security.TenantContext;
+import com.erp.inventory.service.attributes.AttributeValidator;
 import com.erp.inventory.service.PartyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,6 +32,7 @@ import java.util.List;
 public class PartyServiceImpl implements PartyService {
 
     private final PartyRepository partyRepository;
+    private final AttributeValidator attributeValidator;
     private final CompanyRepository companyRepository;
     private final ScheduleRepository scheduleRepository;
     private final BrokerRepository brokerRepository;
@@ -65,7 +67,7 @@ public class PartyServiceImpl implements PartyService {
                 .schedule(resolveSchedule(request.getScheduleId()))
                 .broker(resolveBroker(request.getBrokerId()))
                 .area(resolveArea(request.getAreaId()))
-                .attributes(request.getAttributes() != null ? request.getAttributes() : new HashMap<>())
+                .attributes(attributeValidator.validate("parties", request.getAttributes(), null))
                 .build();
         return toResponse(partyRepository.save(party));
     }
@@ -100,7 +102,7 @@ public class PartyServiceImpl implements PartyService {
         party.setBroker(resolveBroker(request.getBrokerId()));
         party.setArea(resolveArea(request.getAreaId()));
         if (request.getAttributes() != null) {
-            party.setAttributes(request.getAttributes());
+            party.setAttributes(attributeValidator.validate("parties", request.getAttributes(), id));
         }
         return toResponse(party);
     }

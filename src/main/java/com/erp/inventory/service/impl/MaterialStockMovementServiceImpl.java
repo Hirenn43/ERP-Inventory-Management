@@ -12,6 +12,7 @@ import com.erp.inventory.exception.ResourceNotFoundException;
 import com.erp.inventory.repository.MaterialRepository;
 import com.erp.inventory.repository.MaterialStockMovementRepository;
 import com.erp.inventory.repository.PartyRepository;
+import com.erp.inventory.service.attributes.AttributeValidator;
 import com.erp.inventory.service.MaterialStockMovementService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@ import java.util.Map;
 public class MaterialStockMovementServiceImpl implements MaterialStockMovementService {
 
     private final MaterialStockMovementRepository movementRepository;
+    private final AttributeValidator attributeValidator;
     private final MaterialRepository materialRepository;
     private final PartyRepository partyRepository;
 
@@ -49,7 +51,7 @@ public class MaterialStockMovementServiceImpl implements MaterialStockMovementSe
                 .invoiceNo(request.getInvoiceNo())
                 .lotNo(request.getLotNo())
                 .price(request.getPrice())
-                .attributes(request.getAttributes() != null ? request.getAttributes() : new HashMap<>())
+                .attributes(attributeValidator.validate("materialMovements", request.getAttributes(), null))
                 .build();
 
         return toResponse(movementRepository.save(movement));
