@@ -50,7 +50,7 @@ public class InventoryServiceImpl implements InventoryService {
     @Override
     @Transactional
     public StockMovementResponse adjustStock(StockAdjustmentRequest request, UserPrincipal actor) {
-        Product product = productRepository.findById(request.getProductId())
+        Product product = productRepository.findOneById(request.getProductId())
                 .orElseThrow(() -> ResourceNotFoundException.of("Product", request.getProductId()));
         Warehouse warehouse = warehouseRepository.findById(request.getWarehouseId())
                 .orElseThrow(() -> ResourceNotFoundException.of("Warehouse", request.getWarehouseId()));

@@ -24,4 +24,8 @@ public class RegisterRequest {
     @NotBlank(message = "Password is required")
     @Size(min = 6, message = "Password must be at least 6 characters")
     private String password;
+
+    /** New sign-ups start their own tenant. Optional — defaults to the full name. */
+    @Size(max = 150, message = "Company name must be at most 150 characters")
+    private String companyName;
 }

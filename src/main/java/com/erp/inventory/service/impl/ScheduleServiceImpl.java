@@ -8,6 +8,7 @@ import com.erp.inventory.exception.DuplicateResourceException;
 import com.erp.inventory.exception.ResourceNotFoundException;
 import com.erp.inventory.repository.CompanyRepository;
 import com.erp.inventory.repository.ScheduleRepository;
+import com.erp.inventory.security.TenantContext;
 import com.erp.inventory.service.ScheduleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -82,16 +83,14 @@ public class ScheduleServiceImpl implements ScheduleService {
         scheduleRepository.delete(findEntity(id));
     }
 
-    private Company resolveCompany(Long companyId) {
-        if (companyId == null) {
-            return null;
-        }
-        return companyRepository.findById(companyId)
-                .orElseThrow(() -> ResourceNotFoundException.of("Company", companyId));
+    private Company resolveCompany(Long ignoredFromRequest) {
+        // Tenant is derived from the authenticated caller, never from the request body.
+        Long tenantId = TenantContext.get();
+        return tenantId == null ? null : companyRepository.getReferenceById(tenantId);
     }
 
     private Schedule findEntity(Long id) {
-        return scheduleRepository.findById(id)
+        return scheduleRepository.findOneById(id)
                 .orElseThrow(() -> ResourceNotFoundException.of("Schedule", id));
     }
 

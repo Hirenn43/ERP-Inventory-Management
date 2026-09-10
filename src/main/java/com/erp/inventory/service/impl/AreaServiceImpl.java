@@ -8,6 +8,7 @@ import com.erp.inventory.exception.DuplicateResourceException;
 import com.erp.inventory.exception.ResourceNotFoundException;
 import com.erp.inventory.repository.CompanyRepository;
 import com.erp.inventory.repository.AreaRepository;
+import com.erp.inventory.security.TenantContext;
 import com.erp.inventory.service.AreaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -72,16 +73,14 @@ public class AreaServiceImpl implements AreaService {
         areaRepository.delete(findEntity(id));
     }
 
-    private Company resolveCompany(Long companyId) {
-        if (companyId == null) {
-            return null;
-        }
-        return companyRepository.findById(companyId)
-                .orElseThrow(() -> ResourceNotFoundException.of("Company", companyId));
+    private Company resolveCompany(Long ignoredFromRequest) {
+        // Tenant is derived from the authenticated caller, never from the request body.
+        Long tenantId = TenantContext.get();
+        return tenantId == null ? null : companyRepository.getReferenceById(tenantId);
     }
 
     private Area findEntity(Long id) {
-        return areaRepository.findById(id)
+        return areaRepository.findOneById(id)
                 .orElseThrow(() -> ResourceNotFoundException.of("Area", id));
     }
 

@@ -52,6 +52,11 @@ public class User {
     )
     private Set<Role> roles = new HashSet<>();
 
+    /** Tenant this user belongs to. Drives the tenantFilter on every request. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "company_id")
+    private Company company;
+
     @Column(updatable = false)
     private LocalDateTime createdAt;
 

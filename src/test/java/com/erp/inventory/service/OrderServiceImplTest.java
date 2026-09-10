@@ -59,7 +59,7 @@ class OrderServiceImplTest {
 
     @Test
     void computeRequirement_flagsShortfall() {
-        when(productRepository.findById(1L)).thenReturn(java.util.Optional.of(product));
+        when(productRepository.findOneById(1L)).thenReturn(java.util.Optional.of(product));
         when(productComponentRepository.findByProductId(1L)).thenReturn(List.of(bomLine));
         when(materialStockMovementService.availableQuantities(anyCollection()))
                 .thenReturn(Map.of(10L, new BigDecimal("30")));
@@ -76,7 +76,7 @@ class OrderServiceImplTest {
     @Test
     void addFulfillmentEvent_rejectsOverCompletion() {
         Order order = order(new BigDecimal("50"));
-        when(orderRepository.findById(5L)).thenReturn(java.util.Optional.of(order));
+        when(orderRepository.findOneById(5L)).thenReturn(java.util.Optional.of(order));
 
         OrderFulfillmentEventRequest req = new OrderFulfillmentEventRequest();
         req.setStage(FulfillmentStage.COMPLETED);
@@ -94,7 +94,7 @@ class OrderServiceImplTest {
         order.addFulfillmentEvent(event(FulfillmentStage.COMPLETED, "50"));
         order.addFulfillmentEvent(event(FulfillmentStage.DISPATCHED, "50"));
         order.addFulfillmentEvent(event(FulfillmentStage.SETTLED, "50"));
-        when(orderRepository.findById(5L)).thenReturn(java.util.Optional.of(order));
+        when(orderRepository.findOneById(5L)).thenReturn(java.util.Optional.of(order));
         when(productComponentRepository.findByProductId(1L)).thenReturn(List.of());
         when(materialStockMovementService.availableQuantities(anyCollection())).thenReturn(Map.of());
 

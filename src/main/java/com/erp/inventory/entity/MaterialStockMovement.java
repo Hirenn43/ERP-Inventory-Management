@@ -2,6 +2,7 @@ package com.erp.inventory.entity;
 
 import com.erp.inventory.entity.enums.MovementDirection;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Filter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,6 +27,7 @@ import java.util.Map;
         @Index(name = "idx_msm_material_date", columnList = "material_id, date"),
         @Index(name = "idx_msm_party", columnList = "party_id")
 })
+@Filter(name = "tenantFilter", condition = "material_id in (select m.id from materials m where m.company_id = :companyId)")
 @Getter
 @Setter
 @NoArgsConstructor

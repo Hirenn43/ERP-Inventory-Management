@@ -28,9 +28,9 @@ public class ProductComponentServiceImpl implements ProductComponentService {
     @Override
     @Transactional
     public ProductComponentResponse create(ProductComponentRequest request) {
-        Product product = productRepository.findById(request.getProductId())
+        Product product = productRepository.findOneById(request.getProductId())
                 .orElseThrow(() -> ResourceNotFoundException.of("Product", request.getProductId()));
-        Material material = materialRepository.findById(request.getMaterialId())
+        Material material = materialRepository.findOneById(request.getMaterialId())
                 .orElseThrow(() -> ResourceNotFoundException.of("Material", request.getMaterialId()));
 
         if (productComponentRepository.existsByProductIdAndSlotNoIgnoreCase(product.getId(), request.getSlotNo())) {
@@ -51,11 +51,11 @@ public class ProductComponentServiceImpl implements ProductComponentService {
     @Override
     @Transactional
     public ProductComponentResponse update(Long id, ProductComponentRequest request) {
-        ProductComponent component = productComponentRepository.findById(id)
+        ProductComponent component = productComponentRepository.findOneById(id)
                 .orElseThrow(() -> ResourceNotFoundException.of("ProductComponent", id));
-        Product product = productRepository.findById(request.getProductId())
+        Product product = productRepository.findOneById(request.getProductId())
                 .orElseThrow(() -> ResourceNotFoundException.of("Product", request.getProductId()));
-        Material material = materialRepository.findById(request.getMaterialId())
+        Material material = materialRepository.findOneById(request.getMaterialId())
                 .orElseThrow(() -> ResourceNotFoundException.of("Material", request.getMaterialId()));
 
         if (productComponentRepository.existsByProductIdAndSlotNoIgnoreCaseAndIdNot(
@@ -79,7 +79,7 @@ public class ProductComponentServiceImpl implements ProductComponentService {
     @Override
     @Transactional
     public void delete(Long id) {
-        ProductComponent component = productComponentRepository.findById(id)
+        ProductComponent component = productComponentRepository.findOneById(id)
                 .orElseThrow(() -> ResourceNotFoundException.of("ProductComponent", id));
         productComponentRepository.delete(component);
     }

@@ -1,6 +1,7 @@
 package com.erp.inventory.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Filter;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +17,7 @@ import org.hibernate.type.SqlTypes;
 /** A commission agent / broker who introduces parties and earns brokerage on their trade. */
 @Entity
 @Table(name = "brokers")
+@Filter(name = "tenantFilter")
 @Getter
 @Setter
 @NoArgsConstructor

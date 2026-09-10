@@ -1,5 +1,6 @@
 package com.erp.inventory.repository;
 
+import java.util.Optional;
 import com.erp.inventory.entity.ProductComponent;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -11,4 +12,6 @@ public interface ProductComponentRepository extends JpaRepository<ProductCompone
     boolean existsByProductIdAndSlotNoIgnoreCase(Long productId, String slotNo);
 
     boolean existsByProductIdAndSlotNoIgnoreCaseAndIdNot(Long productId, String slotNo, Long id);
+
+    Optional<com.erp.inventory.entity.ProductComponent> findOneById(Long id);
 }

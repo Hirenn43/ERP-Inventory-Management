@@ -6,6 +6,7 @@ import com.erp.inventory.entity.WhatsappUserLink;
 import com.erp.inventory.entity.enums.QuickEntryAction;
 import com.erp.inventory.exception.QuickEntryExecException;
 import com.erp.inventory.repository.WhatsappUserLinkRepository;
+import com.erp.inventory.security.TenantContext;
 import com.erp.inventory.service.QuickEntryService;
 import com.erp.inventory.service.quickentry.EntityResolver;
 import com.erp.inventory.service.quickentry.RequiredFields;
@@ -43,6 +44,8 @@ public class WhatsAppQuickEntryService {
         } catch (RuntimeException e) {
             log.error("WhatsApp quick-entry failed for {}", fromPhone, e);
             return "Something went wrong on our side. Please try again.";
+        } finally {
+            TenantContext.clear();
         }
     }
 
@@ -53,6 +56,11 @@ public class WhatsAppQuickEntryService {
             return "This number isn't registered for quick entry. Ask your admin to add it.";
         }
         WhatsappUserLink link = linkOpt.get();
+        // From here on, every query is scoped to the messaging user's tenant.
+        Long tenantId = link.getCompany() != null ? link.getCompany().getId()
+                : (link.getUser() != null && link.getUser().getCompany() != null
+                        ? link.getUser().getCompany().getId() : null);
+        TenantContext.set(tenantId);
 
         String body = text == null ? "" : text.trim();
         if (body.length() > 1000) {

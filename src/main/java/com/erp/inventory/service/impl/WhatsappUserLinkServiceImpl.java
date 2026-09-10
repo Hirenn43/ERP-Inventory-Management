@@ -10,6 +10,7 @@ import com.erp.inventory.exception.ResourceNotFoundException;
 import com.erp.inventory.repository.CompanyRepository;
 import com.erp.inventory.repository.UserRepository;
 import com.erp.inventory.repository.WhatsappUserLinkRepository;
+import com.erp.inventory.security.TenantContext;
 import com.erp.inventory.service.WhatsappUserLinkService;
 import com.erp.inventory.service.whatsapp.PhoneNumbers;
 import lombok.RequiredArgsConstructor;
@@ -82,16 +83,14 @@ public class WhatsappUserLinkServiceImpl implements WhatsappUserLinkService {
                 .orElseThrow(() -> ResourceNotFoundException.of("User", userId));
     }
 
-    private Company resolveCompany(Long companyId) {
-        if (companyId == null) {
-            return null;
-        }
-        return companyRepository.findById(companyId)
-                .orElseThrow(() -> ResourceNotFoundException.of("Company", companyId));
+    private Company resolveCompany(Long ignoredFromRequest) {
+        // Tenant is derived from the authenticated caller, never from the request body.
+        Long tenantId = TenantContext.get();
+        return tenantId == null ? null : companyRepository.getReferenceById(tenantId);
     }
 
     private WhatsappUserLink findEntity(Long id) {
-        return linkRepository.findById(id)
+        return linkRepository.findOneById(id)
                 .orElseThrow(() -> ResourceNotFoundException.of("WhatsappUserLink", id));
     }
 

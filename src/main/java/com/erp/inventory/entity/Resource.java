@@ -1,6 +1,7 @@
 package com.erp.inventory.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Filter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,6 +16,7 @@ import java.util.Map;
 /** A production resource (e.g. a loom/machine) - optionally referenced by an OrderFulfillmentEvent. */
 @Entity
 @Table(name = "resources")
+@Filter(name = "tenantFilter")
 @Getter
 @Setter
 @NoArgsConstructor

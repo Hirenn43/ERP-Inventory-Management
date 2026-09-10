@@ -7,6 +7,7 @@ import com.erp.inventory.entity.Resource;
 import com.erp.inventory.exception.ResourceNotFoundException;
 import com.erp.inventory.repository.CompanyRepository;
 import com.erp.inventory.repository.ResourceRepository;
+import com.erp.inventory.security.TenantContext;
 import com.erp.inventory.service.ResourceService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -61,16 +62,14 @@ public class ResourceServiceImpl implements ResourceService {
         resourceRepository.delete(findEntity(id));
     }
 
-    private Company resolveCompany(Long companyId) {
-        if (companyId == null) {
-            return null;
-        }
-        return companyRepository.findById(companyId)
-                .orElseThrow(() -> ResourceNotFoundException.of("Company", companyId));
+    private Company resolveCompany(Long ignoredFromRequest) {
+        // Tenant is derived from the authenticated caller, never from the request body.
+        Long tenantId = TenantContext.get();
+        return tenantId == null ? null : companyRepository.getReferenceById(tenantId);
     }
 
     private Resource findEntity(Long id) {
-        return resourceRepository.findById(id)
+        return resourceRepository.findOneById(id)
                 .orElseThrow(() -> ResourceNotFoundException.of("Resource", id));
     }
 

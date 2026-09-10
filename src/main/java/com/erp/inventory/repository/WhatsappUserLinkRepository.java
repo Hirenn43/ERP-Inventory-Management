@@ -12,4 +12,7 @@ public interface WhatsappUserLinkRepository extends JpaRepository<WhatsappUserLi
     Optional<WhatsappUserLink> findByPhone(String phone);
 
     boolean existsByPhone(String phone);
+
+    /** Tenant-filtered id lookup (JpaRepository.findById bypasses Hibernate @Filter). */
+    Optional<WhatsappUserLink> findOneById(Long id);
 }

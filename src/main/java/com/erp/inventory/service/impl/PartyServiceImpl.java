@@ -14,6 +14,7 @@ import com.erp.inventory.repository.BrokerRepository;
 import com.erp.inventory.repository.CompanyRepository;
 import com.erp.inventory.repository.PartyRepository;
 import com.erp.inventory.repository.ScheduleRepository;
+import com.erp.inventory.security.TenantContext;
 import com.erp.inventory.service.PartyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -117,19 +118,17 @@ public class PartyServiceImpl implements PartyService {
         partyRepository.delete(findEntity(id));
     }
 
-    private Company resolveCompany(Long companyId) {
-        if (companyId == null) {
-            return null;
-        }
-        return companyRepository.findById(companyId)
-                .orElseThrow(() -> ResourceNotFoundException.of("Company", companyId));
+    private Company resolveCompany(Long ignoredFromRequest) {
+        // Tenant is derived from the authenticated caller, never from the request body.
+        Long tenantId = TenantContext.get();
+        return tenantId == null ? null : companyRepository.getReferenceById(tenantId);
     }
 
     private Schedule resolveSchedule(Long scheduleId) {
         if (scheduleId == null) {
             return null;
         }
-        return scheduleRepository.findById(scheduleId)
+        return scheduleRepository.findOneById(scheduleId)
                 .orElseThrow(() -> ResourceNotFoundException.of("Schedule", scheduleId));
     }
 
@@ -137,7 +136,7 @@ public class PartyServiceImpl implements PartyService {
         if (brokerId == null) {
             return null;
         }
-        return brokerRepository.findById(brokerId)
+        return brokerRepository.findOneById(brokerId)
                 .orElseThrow(() -> ResourceNotFoundException.of("Broker", brokerId));
     }
 
@@ -145,12 +144,12 @@ public class PartyServiceImpl implements PartyService {
         if (areaId == null) {
             return null;
         }
-        return areaRepository.findById(areaId)
+        return areaRepository.findOneById(areaId)
                 .orElseThrow(() -> ResourceNotFoundException.of("Area", areaId));
     }
 
     private Party findEntity(Long id) {
-        return partyRepository.findById(id)
+        return partyRepository.findOneById(id)
                 .orElseThrow(() -> ResourceNotFoundException.of("Party", id));
     }
 

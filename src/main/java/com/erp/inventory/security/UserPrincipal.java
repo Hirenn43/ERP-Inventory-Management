@@ -20,6 +20,11 @@ public class UserPrincipal implements UserDetails {
         return user.getId();
     }
 
+    /** Tenant (company) this user is scoped to, or {@code null} for a not-yet-assigned account. */
+    public Long getCompanyId() {
+        return user.getCompany() != null ? user.getCompany().getId() : null;
+    }
+
     public User getUser() {
         return user;
     }

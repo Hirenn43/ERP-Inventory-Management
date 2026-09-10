@@ -1,6 +1,7 @@
 package com.erp.inventory.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Filter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 /** Maps a WhatsApp sender number to the ERP user it acts as and the company its entries scope to. */
 @Entity
 @Table(name = "whatsapp_user_links", uniqueConstraints = @UniqueConstraint(columnNames = "phone"))
+@Filter(name = "tenantFilter")
 @Getter
 @Setter
 @NoArgsConstructor

@@ -8,6 +8,7 @@ import com.erp.inventory.exception.DuplicateResourceException;
 import com.erp.inventory.exception.ResourceNotFoundException;
 import com.erp.inventory.repository.CompanyRepository;
 import com.erp.inventory.repository.TransporterRepository;
+import com.erp.inventory.security.TenantContext;
 import com.erp.inventory.service.TransporterService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -84,16 +85,14 @@ public class TransporterServiceImpl implements TransporterService {
         transporterRepository.delete(findEntity(id));
     }
 
-    private Company resolveCompany(Long companyId) {
-        if (companyId == null) {
-            return null;
-        }
-        return companyRepository.findById(companyId)
-                .orElseThrow(() -> ResourceNotFoundException.of("Company", companyId));
+    private Company resolveCompany(Long ignoredFromRequest) {
+        // Tenant is derived from the authenticated caller, never from the request body.
+        Long tenantId = TenantContext.get();
+        return tenantId == null ? null : companyRepository.getReferenceById(tenantId);
     }
 
     private Transporter findEntity(Long id) {
-        return transporterRepository.findById(id)
+        return transporterRepository.findOneById(id)
                 .orElseThrow(() -> ResourceNotFoundException.of("Transporter", id));
     }
 

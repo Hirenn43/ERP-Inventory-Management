@@ -1,6 +1,7 @@
 package com.erp.inventory.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Filter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -20,6 +21,7 @@ import java.util.Map;
         @Index(name = "idx_products_category", columnList = "category_id"),
         @Index(name = "idx_products_company", columnList = "company_id")
 })
+@Filter(name = "tenantFilter")
 @Getter
 @Setter
 @NoArgsConstructor

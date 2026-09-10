@@ -1,6 +1,7 @@
 package com.erp.inventory.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Filter;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,6 +17,7 @@ import org.hibernate.type.SqlTypes;
 /** A vehicle (by registration number) used for dispatch, with TDS and loading-charge defaults. */
 @Entity
 @Table(name = "vehicles")
+@Filter(name = "tenantFilter")
 @Getter
 @Setter
 @NoArgsConstructor

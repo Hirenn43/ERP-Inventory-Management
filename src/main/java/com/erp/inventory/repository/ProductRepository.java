@@ -12,4 +12,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     /** Non-soft-deleted products only. */
     List<Product> findByActiveTrue();
+
+    /** Tenant-filtered id lookup (JpaRepository.findById bypasses Hibernate @Filter). */
+    Optional<Product> findOneById(Long id);
 }

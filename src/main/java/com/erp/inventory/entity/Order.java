@@ -1,6 +1,7 @@
 package com.erp.inventory.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Filter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,6 +27,7 @@ import java.util.Map;
         @Index(name = "idx_orders_party", columnList = "party_id"),
         @Index(name = "idx_orders_product", columnList = "product_id")
 })
+@Filter(name = "tenantFilter", condition = "party_id in (select p.id from parties p where p.company_id = :companyId)")
 @Getter
 @Setter
 @NoArgsConstructor

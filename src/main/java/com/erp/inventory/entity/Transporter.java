@@ -2,6 +2,7 @@ package com.erp.inventory.entity;
 
 import com.erp.inventory.entity.enums.TransportMode;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Filter;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.AllArgsConstructor;
@@ -16,6 +17,7 @@ import org.hibernate.type.SqlTypes;
 /** A transport company used on dispatch / e-way bills. */
 @Entity
 @Table(name = "transporters")
+@Filter(name = "tenantFilter")
 @Getter
 @Setter
 @NoArgsConstructor

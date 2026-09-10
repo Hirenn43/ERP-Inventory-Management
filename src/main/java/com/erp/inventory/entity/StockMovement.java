@@ -2,6 +2,7 @@ package com.erp.inventory.entity;
 
 import com.erp.inventory.entity.enums.MovementType;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Filter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "stock_movements")
+@Filter(name = "tenantFilter", condition = "product_id in (select pr.id from products pr where pr.company_id = :companyId)")
 @Getter
 @Setter
 @NoArgsConstructor

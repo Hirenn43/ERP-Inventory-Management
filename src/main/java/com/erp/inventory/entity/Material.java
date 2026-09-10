@@ -2,6 +2,7 @@ package com.erp.inventory.entity;
 
 import com.erp.inventory.entity.enums.StockType;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Filter;
 import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,6 +23,7 @@ import java.util.Map;
         @Index(name = "idx_materials_company", columnList = "company_id"),
         @Index(name = "idx_materials_category", columnList = "category_id")
 })
+@Filter(name = "tenantFilter")
 @Getter
 @Setter
 @NoArgsConstructor

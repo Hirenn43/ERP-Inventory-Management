@@ -3,6 +3,7 @@ package com.erp.inventory.entity;
 import com.erp.inventory.entity.enums.ScheduleEffect;
 import com.erp.inventory.entity.enums.ScheduleType;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Filter;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.AllArgsConstructor;
@@ -17,6 +18,7 @@ import org.hibernate.type.SqlTypes;
 /** An accounting group (chart-of-accounts head) a party's ledger rolls up into, e.g. SUNDRY DEBTORS FOR GOODS. */
 @Entity
 @Table(name = "schedules")
+@Filter(name = "tenantFilter")
 @Getter
 @Setter
 @NoArgsConstructor

@@ -49,9 +49,9 @@ public class OrderServiceImpl implements OrderService {
     @Override
     @Transactional
     public OrderResponse create(OrderRequest request, UserPrincipal actor) {
-        Party party = partyRepository.findById(request.getPartyId())
+        Party party = partyRepository.findOneById(request.getPartyId())
                 .orElseThrow(() -> ResourceNotFoundException.of("Party", request.getPartyId()));
-        Product product = productRepository.findById(request.getProductId())
+        Product product = productRepository.findOneById(request.getProductId())
                 .orElseThrow(() -> ResourceNotFoundException.of("Product", request.getProductId()));
         ProductComponent component = resolveComponent(request.getComponentId());
 
@@ -109,7 +109,7 @@ public class OrderServiceImpl implements OrderService {
         Order order = findEntity(orderId);
         Resource resource = null;
         if (request.getResourceId() != null) {
-            resource = resourceRepository.findById(request.getResourceId())
+            resource = resourceRepository.findOneById(request.getResourceId())
                     .orElseThrow(() -> ResourceNotFoundException.of("Resource", request.getResourceId()));
         }
 
@@ -151,7 +151,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderMaterialRequirementResponse computeRequirement(Long productId, Long componentId, BigDecimal qty) {
-        Product product = productRepository.findById(productId)
+        Product product = productRepository.findOneById(productId)
                 .orElseThrow(() -> ResourceNotFoundException.of("Product", productId));
         resolveComponent(componentId); // validate if supplied
         BigDecimal quantity = qty != null ? qty : BigDecimal.ZERO;
@@ -204,12 +204,12 @@ public class OrderServiceImpl implements OrderService {
         if (componentId == null) {
             return null;
         }
-        return productComponentRepository.findById(componentId)
+        return productComponentRepository.findOneById(componentId)
                 .orElseThrow(() -> ResourceNotFoundException.of("ProductComponent", componentId));
     }
 
     private Order findEntity(Long id) {
-        return orderRepository.findById(id)
+        return orderRepository.findOneById(id)
                 .orElseThrow(() -> ResourceNotFoundException.of("Order", id));
     }
 

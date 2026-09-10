@@ -4,11 +4,13 @@ import com.erp.inventory.dto.request.LoginRequest;
 import com.erp.inventory.dto.request.RefreshTokenRequest;
 import com.erp.inventory.dto.request.RegisterRequest;
 import com.erp.inventory.dto.response.AuthResponse;
+import com.erp.inventory.entity.Company;
 import com.erp.inventory.entity.Role;
 import com.erp.inventory.entity.User;
 import com.erp.inventory.entity.enums.RoleName;
 import com.erp.inventory.exception.DuplicateResourceException;
 import com.erp.inventory.exception.TokenRefreshException;
+import com.erp.inventory.repository.CompanyRepository;
 import com.erp.inventory.repository.RoleRepository;
 import com.erp.inventory.repository.UserRepository;
 import com.erp.inventory.security.JwtService;
@@ -34,6 +36,7 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final CompanyRepository companyRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
@@ -53,12 +56,19 @@ public class AuthServiceImpl implements AuthService {
         Set<Role> roles = new HashSet<>();
         roles.add(getOrCreateRole(RoleName.ROLE_STAFF));
 
+        // Every user belongs to a tenant. A new sign-up starts its own company.
+        String companyName = request.getCompanyName() != null && !request.getCompanyName().isBlank()
+                ? request.getCompanyName().trim()
+                : request.getFullName();
+        Company company = companyRepository.save(Company.builder().name(companyName).build());
+
         User user = User.builder()
                 .fullName(request.getFullName())
                 .username(request.getUsername())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .roles(roles)
+                .company(company)
                 .enabled(true)
                 .build();
 

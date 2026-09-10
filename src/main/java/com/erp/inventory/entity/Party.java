@@ -3,6 +3,7 @@ package com.erp.inventory.entity;
 import com.erp.inventory.entity.enums.PartyRole;
 import com.erp.inventory.entity.enums.RegistrationType;
 import jakarta.persistence.*;
+import org.hibernate.annotations.Filter;
 import java.math.BigDecimal;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -26,6 +27,7 @@ import java.util.Set;
         @Index(name = "idx_parties_broker", columnList = "broker_id"),
         @Index(name = "idx_parties_area", columnList = "area_id")
 })
+@Filter(name = "tenantFilter")
 @Getter
 @Setter
 @NoArgsConstructor

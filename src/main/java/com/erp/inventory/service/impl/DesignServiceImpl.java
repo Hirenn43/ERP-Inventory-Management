@@ -8,6 +8,7 @@ import com.erp.inventory.exception.DuplicateResourceException;
 import com.erp.inventory.exception.ResourceNotFoundException;
 import com.erp.inventory.repository.CompanyRepository;
 import com.erp.inventory.repository.DesignRepository;
+import com.erp.inventory.security.TenantContext;
 import com.erp.inventory.service.DesignService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -78,16 +79,14 @@ public class DesignServiceImpl implements DesignService {
         designRepository.delete(findEntity(id));
     }
 
-    private Company resolveCompany(Long companyId) {
-        if (companyId == null) {
-            return null;
-        }
-        return companyRepository.findById(companyId)
-                .orElseThrow(() -> ResourceNotFoundException.of("Company", companyId));
+    private Company resolveCompany(Long ignoredFromRequest) {
+        // Tenant is derived from the authenticated caller, never from the request body.
+        Long tenantId = TenantContext.get();
+        return tenantId == null ? null : companyRepository.getReferenceById(tenantId);
     }
 
     private Design findEntity(Long id) {
-        return designRepository.findById(id)
+        return designRepository.findOneById(id)
                 .orElseThrow(() -> ResourceNotFoundException.of("Design", id));
     }
 

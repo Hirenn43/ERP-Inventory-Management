@@ -1,6 +1,7 @@
 package com.erp.inventory.entity;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.Filter;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -15,6 +16,8 @@ import java.math.BigDecimal;
 @Table(name = "product_components",
         uniqueConstraints = @UniqueConstraint(name = "uk_product_component_slot",
                 columnNames = {"product_id", "slot_no"}))
+@Filter(name = "tenantFilter",
+        condition = "product_id in (select pr.id from products pr where pr.company_id = :companyId)")
 @Getter
 @Setter
 @NoArgsConstructor

@@ -11,6 +11,7 @@ import com.erp.inventory.repository.CategoryRepository;
 import com.erp.inventory.repository.CompanyRepository;
 import com.erp.inventory.repository.MaterialRepository;
 import com.erp.inventory.repository.MaterialStockMovementRepository;
+import com.erp.inventory.security.TenantContext;
 import com.erp.inventory.service.MaterialService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -92,12 +93,10 @@ public class MaterialServiceImpl implements MaterialService {
         materialRepository.delete(findEntity(id));
     }
 
-    private Company resolveCompany(Long companyId) {
-        if (companyId == null) {
-            return null;
-        }
-        return companyRepository.findById(companyId)
-                .orElseThrow(() -> ResourceNotFoundException.of("Company", companyId));
+    private Company resolveCompany(Long ignoredFromRequest) {
+        // Tenant is derived from the authenticated caller, never from the request body.
+        Long tenantId = TenantContext.get();
+        return tenantId == null ? null : companyRepository.getReferenceById(tenantId);
     }
 
     private Category resolveCategory(Long categoryId) {
@@ -109,7 +108,7 @@ public class MaterialServiceImpl implements MaterialService {
     }
 
     private Material findEntity(Long id) {
-        return materialRepository.findById(id)
+        return materialRepository.findOneById(id)
                 .orElseThrow(() -> ResourceNotFoundException.of("Material", id));
     }
 

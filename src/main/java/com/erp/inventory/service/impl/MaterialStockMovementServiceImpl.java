@@ -32,9 +32,9 @@ public class MaterialStockMovementServiceImpl implements MaterialStockMovementSe
     @Override
     @Transactional
     public MaterialStockMovementResponse create(MaterialStockMovementRequest request) {
-        Material material = materialRepository.findById(request.getMaterialId())
+        Material material = materialRepository.findOneById(request.getMaterialId())
                 .orElseThrow(() -> ResourceNotFoundException.of("Material", request.getMaterialId()));
-        Party party = partyRepository.findById(request.getPartyId())
+        Party party = partyRepository.findOneById(request.getPartyId())
                 .orElseThrow(() -> ResourceNotFoundException.of("Party", request.getPartyId()));
 
         MaterialStockMovement movement = MaterialStockMovement.builder()

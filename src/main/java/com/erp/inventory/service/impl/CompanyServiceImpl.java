@@ -5,6 +5,7 @@ import com.erp.inventory.dto.response.CompanyResponse;
 import com.erp.inventory.entity.Company;
 import com.erp.inventory.exception.ResourceNotFoundException;
 import com.erp.inventory.repository.CompanyRepository;
+import com.erp.inventory.security.TenantContext;
 import com.erp.inventory.service.CompanyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -51,7 +52,12 @@ public class CompanyServiceImpl implements CompanyService {
 
     @Override
     public List<CompanyResponse> getAll() {
-        return companyRepository.findAll().stream().map(this::toResponse).toList();
+        // A tenant only ever sees its own company.
+        Long tenantId = TenantContext.get();
+        if (tenantId == null) {
+            return List.of();
+        }
+        return companyRepository.findById(tenantId).map(this::toResponse).map(List::of).orElseGet(List::of);
     }
 
     @Override
@@ -61,6 +67,10 @@ public class CompanyServiceImpl implements CompanyService {
     }
 
     private Company findEntity(Long id) {
+        Long tenantId = TenantContext.get();
+        if (tenantId != null && !tenantId.equals(id)) {
+            throw ResourceNotFoundException.of("Company", id);
+        }
         return companyRepository.findById(id)
                 .orElseThrow(() -> ResourceNotFoundException.of("Company", id));
     }
