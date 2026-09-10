@@ -1,5 +1,8 @@
 package com.erp.inventory.service.impl;
 
+import com.erp.inventory.dto.response.PageResponse;
+import com.erp.inventory.repository.spec.TextSearchSpec;
+import org.springframework.data.domain.Pageable;
 import com.erp.inventory.dto.request.VehicleRequest;
 import com.erp.inventory.dto.response.VehicleResponse;
 import com.erp.inventory.entity.Company;
@@ -77,6 +80,11 @@ public class VehicleServiceImpl implements VehicleService {
     @Override
     public List<VehicleResponse> getAll() {
         return vehicleRepository.findAll().stream().map(this::toResponse).toList();
+    }
+
+    @Override
+    public PageResponse<VehicleResponse> getPage(Pageable pageable, String q) {
+        return PageResponse.of(vehicleRepository.findAll(TextSearchSpec.contains(q, "name"), pageable).map(this::toResponse));
     }
 
     @Override

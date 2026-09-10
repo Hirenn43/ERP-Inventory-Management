@@ -34,8 +34,14 @@ public class MaterialController {
     }
 
     @GetMapping
-    public ResponseEntity<List<MaterialResponse>> getAll() {
-        return ResponseEntity.ok(materialService.getAll());
+    public ResponseEntity<?> getAll(
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String q,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) Integer page,
+            org.springframework.data.domain.Pageable pageable) {
+        if (page == null && (q == null || q.isBlank())) {
+            return ResponseEntity.ok(materialService.getAll());
+        }
+        return ResponseEntity.ok(materialService.getPage(pageable, q));
     }
 
     @DeleteMapping("/{id}")

@@ -1,5 +1,7 @@
 package com.erp.inventory.service;
 
+import com.erp.inventory.dto.response.PageResponse;
+import org.springframework.data.domain.Pageable;
 import com.erp.inventory.dto.request.MaterialStockMovementRequest;
 import com.erp.inventory.dto.response.MaterialStockMovementResponse;
 
@@ -11,6 +13,7 @@ import java.util.Map;
 public interface MaterialStockMovementService {
     MaterialStockMovementResponse create(MaterialStockMovementRequest request);
     List<MaterialStockMovementResponse> getAll();
+    PageResponse<MaterialStockMovementResponse> getPage(Pageable pageable, String q);
     List<MaterialStockMovementResponse> getByMaterial(Long materialId);
 
     /** On-hand quantity for one material: Σ(IN) − Σ(OUT), never null. */

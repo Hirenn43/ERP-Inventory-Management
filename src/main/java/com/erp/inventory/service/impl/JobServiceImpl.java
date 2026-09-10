@@ -1,5 +1,8 @@
 package com.erp.inventory.service.impl;
 
+import com.erp.inventory.dto.response.PageResponse;
+import com.erp.inventory.repository.spec.TextSearchSpec;
+import org.springframework.data.domain.Pageable;
 import com.erp.inventory.dto.request.JobRequest;
 import com.erp.inventory.dto.response.JobResponse;
 import com.erp.inventory.entity.Company;
@@ -69,6 +72,11 @@ public class JobServiceImpl implements JobService {
     @Override
     public List<JobResponse> getAll() {
         return jobRepository.findAll().stream().map(this::toResponse).toList();
+    }
+
+    @Override
+    public PageResponse<JobResponse> getPage(Pageable pageable, String q) {
+        return PageResponse.of(jobRepository.findAll(TextSearchSpec.contains(q, "name"), pageable).map(this::toResponse));
     }
 
     @Override

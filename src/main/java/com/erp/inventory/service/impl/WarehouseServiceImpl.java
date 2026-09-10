@@ -1,5 +1,8 @@
 package com.erp.inventory.service.impl;
 
+import com.erp.inventory.dto.response.PageResponse;
+import com.erp.inventory.repository.spec.TextSearchSpec;
+import org.springframework.data.domain.Pageable;
 import com.erp.inventory.dto.request.WarehouseRequest;
 import com.erp.inventory.dto.response.WarehouseResponse;
 import com.erp.inventory.entity.Warehouse;
@@ -50,6 +53,11 @@ public class WarehouseServiceImpl implements WarehouseService {
     @Override
     public List<WarehouseResponse> getAll() {
         return warehouseRepository.findAll().stream().map(this::toResponse).toList();
+    }
+
+    @Override
+    public PageResponse<WarehouseResponse> getPage(Pageable pageable, String q) {
+        return PageResponse.of(warehouseRepository.findAll(TextSearchSpec.contains(q, "name"), pageable).map(this::toResponse));
     }
 
     @Override

@@ -1,5 +1,8 @@
 package com.erp.inventory.service.impl;
 
+import com.erp.inventory.dto.response.PageResponse;
+import com.erp.inventory.repository.spec.TextSearchSpec;
+import org.springframework.data.domain.Pageable;
 import com.erp.inventory.dto.request.DesignRequest;
 import com.erp.inventory.dto.response.DesignResponse;
 import com.erp.inventory.entity.Company;
@@ -71,6 +74,11 @@ public class DesignServiceImpl implements DesignService {
     @Override
     public List<DesignResponse> getAll() {
         return designRepository.findAll().stream().map(this::toResponse).toList();
+    }
+
+    @Override
+    public PageResponse<DesignResponse> getPage(Pageable pageable, String q) {
+        return PageResponse.of(designRepository.findAll(TextSearchSpec.contains(q, "name"), pageable).map(this::toResponse));
     }
 
     @Override

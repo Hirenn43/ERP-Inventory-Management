@@ -1,5 +1,8 @@
 package com.erp.inventory.service.impl;
 
+import com.erp.inventory.dto.response.PageResponse;
+import com.erp.inventory.repository.spec.TextSearchSpec;
+import org.springframework.data.domain.Pageable;
 import com.erp.inventory.dto.request.MaterialStockMovementRequest;
 import com.erp.inventory.dto.response.MaterialStockMovementResponse;
 import com.erp.inventory.entity.Material;
@@ -55,6 +58,11 @@ public class MaterialStockMovementServiceImpl implements MaterialStockMovementSe
     @Override
     public List<MaterialStockMovementResponse> getAll() {
         return movementRepository.findAll().stream().map(this::toResponse).toList();
+    }
+
+    @Override
+    public PageResponse<MaterialStockMovementResponse> getPage(Pageable pageable, String q) {
+        return PageResponse.of(movementRepository.findAll(TextSearchSpec.contains(q, "invoiceNo", "lotNo"), pageable).map(this::toResponse));
     }
 
     @Override

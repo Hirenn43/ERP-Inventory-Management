@@ -1,5 +1,7 @@
 package com.erp.inventory.service;
 
+import com.erp.inventory.dto.response.PageResponse;
+import org.springframework.data.domain.Pageable;
 import com.erp.inventory.dto.request.AreaRequest;
 import com.erp.inventory.dto.response.AreaResponse;
 
@@ -10,5 +12,6 @@ public interface AreaService {
     AreaResponse update(Long id, AreaRequest request);
     AreaResponse getById(Long id);
     List<AreaResponse> getAll();
+    PageResponse<AreaResponse> getPage(Pageable pageable, String q);
     void delete(Long id);
 }

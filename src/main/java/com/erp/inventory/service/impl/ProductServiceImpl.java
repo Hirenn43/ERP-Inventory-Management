@@ -1,5 +1,8 @@
 package com.erp.inventory.service.impl;
 
+import com.erp.inventory.dto.response.PageResponse;
+import com.erp.inventory.repository.spec.TextSearchSpec;
+import org.springframework.data.domain.Pageable;
 import com.erp.inventory.dto.request.ProductRequest;
 import com.erp.inventory.dto.response.ProductResponse;
 import com.erp.inventory.entity.Category;
@@ -79,6 +82,11 @@ public class ProductServiceImpl implements ProductService {
     public List<ProductResponse> getAll() {
         // Soft-deleted (active = false) products are hidden from list views.
         return productRepository.findByActiveTrue().stream().map(this::toResponse).toList();
+    }
+
+    @Override
+    public PageResponse<ProductResponse> getPage(Pageable pageable, String q) {
+        return PageResponse.of(productRepository.findAll(TextSearchSpec.contains(q, "sku", "name"), pageable).map(this::toResponse));
     }
 
     @Override

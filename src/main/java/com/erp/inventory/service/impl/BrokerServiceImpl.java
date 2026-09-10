@@ -1,5 +1,8 @@
 package com.erp.inventory.service.impl;
 
+import com.erp.inventory.dto.response.PageResponse;
+import com.erp.inventory.repository.spec.TextSearchSpec;
+import org.springframework.data.domain.Pageable;
 import com.erp.inventory.dto.request.BrokerRequest;
 import com.erp.inventory.dto.response.BrokerResponse;
 import com.erp.inventory.entity.Company;
@@ -83,6 +86,11 @@ public class BrokerServiceImpl implements BrokerService {
     @Override
     public List<BrokerResponse> getAll() {
         return brokerRepository.findAll().stream().map(this::toResponse).toList();
+    }
+
+    @Override
+    public PageResponse<BrokerResponse> getPage(Pageable pageable, String q) {
+        return PageResponse.of(brokerRepository.findAll(TextSearchSpec.contains(q, "name"), pageable).map(this::toResponse));
     }
 
     @Override

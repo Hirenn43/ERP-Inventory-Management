@@ -34,8 +34,14 @@ public class ResourceController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ResourceResponse>> getAll() {
-        return ResponseEntity.ok(resourceService.getAll());
+    public ResponseEntity<?> getAll(
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String q,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) Integer page,
+            org.springframework.data.domain.Pageable pageable) {
+        if (page == null && (q == null || q.isBlank())) {
+            return ResponseEntity.ok(resourceService.getAll());
+        }
+        return ResponseEntity.ok(resourceService.getPage(pageable, q));
     }
 
     @DeleteMapping("/{id}")

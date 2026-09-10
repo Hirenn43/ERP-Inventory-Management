@@ -34,8 +34,14 @@ public class CompanyController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CompanyResponse>> getAll() {
-        return ResponseEntity.ok(companyService.getAll());
+    public ResponseEntity<?> getAll(
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String q,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) Integer page,
+            org.springframework.data.domain.Pageable pageable) {
+        if (page == null && (q == null || q.isBlank())) {
+            return ResponseEntity.ok(companyService.getAll());
+        }
+        return ResponseEntity.ok(companyService.getPage(pageable, q));
     }
 
     @DeleteMapping("/{id}")

@@ -1,5 +1,7 @@
 package com.erp.inventory.service;
 
+import com.erp.inventory.dto.response.PageResponse;
+import org.springframework.data.domain.Pageable;
 import com.erp.inventory.dto.request.MaterialRequest;
 import com.erp.inventory.dto.response.MaterialResponse;
 
@@ -10,5 +12,6 @@ public interface MaterialService {
     MaterialResponse update(Long id, MaterialRequest request);
     MaterialResponse getById(Long id);
     List<MaterialResponse> getAll();
+    PageResponse<MaterialResponse> getPage(Pageable pageable, String q);
     void delete(Long id);
 }

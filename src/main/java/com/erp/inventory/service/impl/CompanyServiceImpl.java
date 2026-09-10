@@ -1,5 +1,8 @@
 package com.erp.inventory.service.impl;
 
+import com.erp.inventory.dto.response.PageResponse;
+import com.erp.inventory.repository.spec.TextSearchSpec;
+import org.springframework.data.domain.Pageable;
 import com.erp.inventory.dto.request.CompanyRequest;
 import com.erp.inventory.dto.response.CompanyResponse;
 import com.erp.inventory.entity.Company;
@@ -58,6 +61,13 @@ public class CompanyServiceImpl implements CompanyService {
             return List.of();
         }
         return companyRepository.findById(tenantId).map(this::toResponse).map(List::of).orElseGet(List::of);
+    }
+
+    @Override
+    public PageResponse<CompanyResponse> getPage(Pageable pageable, String q) {
+        // A tenant only sees its own company; there is nothing to page or search.
+        return PageResponse.of(
+                new org.springframework.data.domain.PageImpl<>(getAll(), pageable, getAll().size()));
     }
 
     @Override

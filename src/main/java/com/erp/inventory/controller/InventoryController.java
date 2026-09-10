@@ -21,8 +21,14 @@ public class InventoryController {
     private final InventoryService inventoryService;
 
     @GetMapping
-    public ResponseEntity<List<InventoryResponse>> getAll() {
-        return ResponseEntity.ok(inventoryService.getAll());
+    public ResponseEntity<?> getAll(
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String q,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) Integer page,
+            org.springframework.data.domain.Pageable pageable) {
+        if (page == null && (q == null || q.isBlank())) {
+            return ResponseEntity.ok(inventoryService.getAll());
+        }
+        return ResponseEntity.ok(inventoryService.getPage(pageable, q));
     }
 
     @GetMapping("/product/{productId}")

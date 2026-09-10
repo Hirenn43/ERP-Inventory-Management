@@ -1,5 +1,7 @@
 package com.erp.inventory.service;
 
+import com.erp.inventory.dto.response.PageResponse;
+import org.springframework.data.domain.Pageable;
 import com.erp.inventory.dto.request.WhatsappUserLinkRequest;
 import com.erp.inventory.dto.response.WhatsappUserLinkResponse;
 
@@ -10,5 +12,6 @@ public interface WhatsappUserLinkService {
     WhatsappUserLinkResponse update(Long id, WhatsappUserLinkRequest request);
     WhatsappUserLinkResponse getById(Long id);
     List<WhatsappUserLinkResponse> getAll();
+    PageResponse<WhatsappUserLinkResponse> getPage(Pageable pageable, String q);
     void delete(Long id);
 }

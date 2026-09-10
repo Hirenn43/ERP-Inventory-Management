@@ -34,8 +34,14 @@ public class DesignController {
     }
 
     @GetMapping
-    public ResponseEntity<List<DesignResponse>> getAll() {
-        return ResponseEntity.ok(designService.getAll());
+    public ResponseEntity<?> getAll(
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String q,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) Integer page,
+            org.springframework.data.domain.Pageable pageable) {
+        if (page == null && (q == null || q.isBlank())) {
+            return ResponseEntity.ok(designService.getAll());
+        }
+        return ResponseEntity.ok(designService.getPage(pageable, q));
     }
 
     @DeleteMapping("/{id}")

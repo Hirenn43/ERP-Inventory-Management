@@ -1,5 +1,8 @@
 package com.erp.inventory.service.impl;
 
+import com.erp.inventory.dto.response.PageResponse;
+import com.erp.inventory.repository.spec.TextSearchSpec;
+import org.springframework.data.domain.Pageable;
 import com.erp.inventory.dto.request.AreaRequest;
 import com.erp.inventory.dto.response.AreaResponse;
 import com.erp.inventory.entity.Company;
@@ -65,6 +68,11 @@ public class AreaServiceImpl implements AreaService {
     @Override
     public List<AreaResponse> getAll() {
         return areaRepository.findAll().stream().map(this::toResponse).toList();
+    }
+
+    @Override
+    public PageResponse<AreaResponse> getPage(Pageable pageable, String q) {
+        return PageResponse.of(areaRepository.findAll(TextSearchSpec.contains(q, "name"), pageable).map(this::toResponse));
     }
 
     @Override

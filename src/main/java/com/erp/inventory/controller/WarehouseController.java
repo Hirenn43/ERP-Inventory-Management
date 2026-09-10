@@ -34,8 +34,14 @@ public class WarehouseController {
     }
 
     @GetMapping
-    public ResponseEntity<List<WarehouseResponse>> getAll() {
-        return ResponseEntity.ok(warehouseService.getAll());
+    public ResponseEntity<?> getAll(
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String q,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) Integer page,
+            org.springframework.data.domain.Pageable pageable) {
+        if (page == null && (q == null || q.isBlank())) {
+            return ResponseEntity.ok(warehouseService.getAll());
+        }
+        return ResponseEntity.ok(warehouseService.getPage(pageable, q));
     }
 
     @DeleteMapping("/{id}")

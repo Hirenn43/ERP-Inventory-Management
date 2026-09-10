@@ -34,8 +34,14 @@ public class BrokerController {
     }
 
     @GetMapping
-    public ResponseEntity<List<BrokerResponse>> getAll() {
-        return ResponseEntity.ok(brokerService.getAll());
+    public ResponseEntity<?> getAll(
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String q,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) Integer page,
+            org.springframework.data.domain.Pageable pageable) {
+        if (page == null && (q == null || q.isBlank())) {
+            return ResponseEntity.ok(brokerService.getAll());
+        }
+        return ResponseEntity.ok(brokerService.getPage(pageable, q));
     }
 
     @DeleteMapping("/{id}")

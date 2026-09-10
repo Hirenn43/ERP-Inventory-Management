@@ -1,5 +1,8 @@
 package com.erp.inventory.service.impl;
 
+import com.erp.inventory.dto.response.PageResponse;
+import com.erp.inventory.repository.spec.TextSearchSpec;
+import org.springframework.data.domain.Pageable;
 import com.erp.inventory.dto.request.MaterialRequest;
 import com.erp.inventory.dto.response.MaterialResponse;
 import com.erp.inventory.entity.Category;
@@ -85,6 +88,11 @@ public class MaterialServiceImpl implements MaterialService {
     @Override
     public List<MaterialResponse> getAll() {
         return materialRepository.findAll().stream().map(this::toResponse).toList();
+    }
+
+    @Override
+    public PageResponse<MaterialResponse> getPage(Pageable pageable, String q) {
+        return PageResponse.of(materialRepository.findAll(TextSearchSpec.contains(q, "code"), pageable).map(this::toResponse));
     }
 
     @Override

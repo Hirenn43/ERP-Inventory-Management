@@ -1,5 +1,8 @@
 package com.erp.inventory.service.impl;
 
+import com.erp.inventory.dto.response.PageResponse;
+import com.erp.inventory.repository.spec.TextSearchSpec;
+import org.springframework.data.domain.Pageable;
 import com.erp.inventory.dto.request.WhatsappUserLinkRequest;
 import com.erp.inventory.dto.response.WhatsappUserLinkResponse;
 import com.erp.inventory.entity.Company;
@@ -70,6 +73,11 @@ public class WhatsappUserLinkServiceImpl implements WhatsappUserLinkService {
     @Override
     public List<WhatsappUserLinkResponse> getAll() {
         return linkRepository.findAll().stream().map(this::toResponse).toList();
+    }
+
+    @Override
+    public PageResponse<WhatsappUserLinkResponse> getPage(Pageable pageable, String q) {
+        return PageResponse.of(linkRepository.findAll(TextSearchSpec.contains(q, "phone"), pageable).map(this::toResponse));
     }
 
     @Override

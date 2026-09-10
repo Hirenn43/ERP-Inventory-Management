@@ -34,8 +34,14 @@ public class ScheduleController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ScheduleResponse>> getAll() {
-        return ResponseEntity.ok(scheduleService.getAll());
+    public ResponseEntity<?> getAll(
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String q,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) Integer page,
+            org.springframework.data.domain.Pageable pageable) {
+        if (page == null && (q == null || q.isBlank())) {
+            return ResponseEntity.ok(scheduleService.getAll());
+        }
+        return ResponseEntity.ok(scheduleService.getPage(pageable, q));
     }
 
     @DeleteMapping("/{id}")

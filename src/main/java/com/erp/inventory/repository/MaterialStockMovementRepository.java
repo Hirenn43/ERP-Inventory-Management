@@ -2,6 +2,7 @@ package com.erp.inventory.repository;
 
 import com.erp.inventory.entity.MaterialStockMovement;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -9,7 +10,7 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
 
-public interface MaterialStockMovementRepository extends JpaRepository<MaterialStockMovement, Long> {
+public interface MaterialStockMovementRepository extends JpaRepository<MaterialStockMovement, Long>, JpaSpecificationExecutor<MaterialStockMovement> {
     List<MaterialStockMovement> findByMaterialIdOrderByDateDesc(Long materialId);
 
     /** On-hand quantity for one material: Σ(IN) − Σ(OUT). Null when the material has no movements. */

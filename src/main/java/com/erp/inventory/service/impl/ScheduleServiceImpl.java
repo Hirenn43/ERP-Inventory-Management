@@ -1,5 +1,8 @@
 package com.erp.inventory.service.impl;
 
+import com.erp.inventory.dto.response.PageResponse;
+import com.erp.inventory.repository.spec.TextSearchSpec;
+import org.springframework.data.domain.Pageable;
 import com.erp.inventory.dto.request.ScheduleRequest;
 import com.erp.inventory.dto.response.ScheduleResponse;
 import com.erp.inventory.entity.Company;
@@ -75,6 +78,11 @@ public class ScheduleServiceImpl implements ScheduleService {
     @Override
     public List<ScheduleResponse> getAll() {
         return scheduleRepository.findAll().stream().map(this::toResponse).toList();
+    }
+
+    @Override
+    public PageResponse<ScheduleResponse> getPage(Pageable pageable, String q) {
+        return PageResponse.of(scheduleRepository.findAll(TextSearchSpec.contains(q, "name"), pageable).map(this::toResponse));
     }
 
     @Override

@@ -25,8 +25,14 @@ public class MaterialStockMovementController {
     }
 
     @GetMapping
-    public ResponseEntity<List<MaterialStockMovementResponse>> getAll() {
-        return ResponseEntity.ok(movementService.getAll());
+    public ResponseEntity<?> getAll(
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String q,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) Integer page,
+            org.springframework.data.domain.Pageable pageable) {
+        if (page == null && (q == null || q.isBlank())) {
+            return ResponseEntity.ok(movementService.getAll());
+        }
+        return ResponseEntity.ok(movementService.getPage(pageable, q));
     }
 
     @GetMapping("/material/{materialId}")

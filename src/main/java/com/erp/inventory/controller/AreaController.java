@@ -34,8 +34,14 @@ public class AreaController {
     }
 
     @GetMapping
-    public ResponseEntity<List<AreaResponse>> getAll() {
-        return ResponseEntity.ok(areaService.getAll());
+    public ResponseEntity<?> getAll(
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String q,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) Integer page,
+            org.springframework.data.domain.Pageable pageable) {
+        if (page == null && (q == null || q.isBlank())) {
+            return ResponseEntity.ok(areaService.getAll());
+        }
+        return ResponseEntity.ok(areaService.getPage(pageable, q));
     }
 
     @DeleteMapping("/{id}")

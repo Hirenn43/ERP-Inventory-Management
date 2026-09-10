@@ -34,8 +34,14 @@ public class TransporterController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TransporterResponse>> getAll() {
-        return ResponseEntity.ok(transporterService.getAll());
+    public ResponseEntity<?> getAll(
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String q,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) Integer page,
+            org.springframework.data.domain.Pageable pageable) {
+        if (page == null && (q == null || q.isBlank())) {
+            return ResponseEntity.ok(transporterService.getAll());
+        }
+        return ResponseEntity.ok(transporterService.getPage(pageable, q));
     }
 
     @DeleteMapping("/{id}")

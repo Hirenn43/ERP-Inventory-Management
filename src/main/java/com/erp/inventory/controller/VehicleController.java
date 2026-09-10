@@ -34,8 +34,14 @@ public class VehicleController {
     }
 
     @GetMapping
-    public ResponseEntity<List<VehicleResponse>> getAll() {
-        return ResponseEntity.ok(vehicleService.getAll());
+    public ResponseEntity<?> getAll(
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String q,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) Integer page,
+            org.springframework.data.domain.Pageable pageable) {
+        if (page == null && (q == null || q.isBlank())) {
+            return ResponseEntity.ok(vehicleService.getAll());
+        }
+        return ResponseEntity.ok(vehicleService.getPage(pageable, q));
     }
 
     @DeleteMapping("/{id}")

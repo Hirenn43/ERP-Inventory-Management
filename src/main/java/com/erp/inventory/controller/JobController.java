@@ -34,8 +34,14 @@ public class JobController {
     }
 
     @GetMapping
-    public ResponseEntity<List<JobResponse>> getAll() {
-        return ResponseEntity.ok(jobService.getAll());
+    public ResponseEntity<?> getAll(
+            @org.springframework.web.bind.annotation.RequestParam(required = false) String q,
+            @org.springframework.web.bind.annotation.RequestParam(required = false) Integer page,
+            org.springframework.data.domain.Pageable pageable) {
+        if (page == null && (q == null || q.isBlank())) {
+            return ResponseEntity.ok(jobService.getAll());
+        }
+        return ResponseEntity.ok(jobService.getPage(pageable, q));
     }
 
     @DeleteMapping("/{id}")

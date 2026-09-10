@@ -1,5 +1,8 @@
 package com.erp.inventory.service.impl;
 
+import com.erp.inventory.dto.response.PageResponse;
+import com.erp.inventory.repository.spec.TextSearchSpec;
+import org.springframework.data.domain.Pageable;
 import com.erp.inventory.dto.request.PartyRequest;
 import com.erp.inventory.dto.response.PartyResponse;
 import com.erp.inventory.entity.Area;
@@ -110,6 +113,11 @@ public class PartyServiceImpl implements PartyService {
     @Override
     public List<PartyResponse> getAll() {
         return partyRepository.findAll().stream().map(this::toResponse).toList();
+    }
+
+    @Override
+    public PageResponse<PartyResponse> getPage(Pageable pageable, String q) {
+        return PageResponse.of(partyRepository.findAll(TextSearchSpec.contains(q, "name"), pageable).map(this::toResponse));
     }
 
     @Override

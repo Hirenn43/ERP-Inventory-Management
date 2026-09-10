@@ -1,5 +1,8 @@
 package com.erp.inventory.service.impl;
 
+import com.erp.inventory.dto.response.PageResponse;
+import com.erp.inventory.repository.spec.TextSearchSpec;
+import org.springframework.data.domain.Pageable;
 import com.erp.inventory.dto.request.OrderFulfillmentEventRequest;
 import com.erp.inventory.dto.request.OrderRequest;
 import com.erp.inventory.dto.response.OrderFulfillmentEventResponse;
@@ -101,6 +104,11 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public List<OrderResponse> getAll() {
         return orderRepository.findAll().stream().map(this::toResponse).toList();
+    }
+
+    @Override
+    public PageResponse<OrderResponse> getPage(Pageable pageable, String q) {
+        return PageResponse.of(orderRepository.findAll(TextSearchSpec.contains(q, "orderNumber"), pageable).map(this::toResponse));
     }
 
     @Override

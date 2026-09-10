@@ -1,5 +1,8 @@
 package com.erp.inventory.service.impl;
 
+import com.erp.inventory.dto.response.PageResponse;
+import com.erp.inventory.repository.spec.TextSearchSpec;
+import org.springframework.data.domain.Pageable;
 import com.erp.inventory.dto.request.StockAdjustmentRequest;
 import com.erp.inventory.dto.response.InventoryResponse;
 import com.erp.inventory.dto.response.StockMovementResponse;
@@ -35,6 +38,12 @@ public class InventoryServiceImpl implements InventoryService {
     @Override
     public List<InventoryResponse> getAll() {
         return inventoryRepository.findAll().stream().map(this::toResponse).toList();
+    }
+
+    @Override
+    public PageResponse<InventoryResponse> getPage(Pageable pageable, String q) {
+        org.springframework.data.jpa.domain.Specification<com.erp.inventory.entity.Inventory> noFilter = null;
+        return PageResponse.of(inventoryRepository.findAll(noFilter, pageable).map(this::toResponse));
     }
 
     @Override
