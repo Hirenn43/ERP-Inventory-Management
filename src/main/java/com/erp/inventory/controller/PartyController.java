@@ -17,6 +17,7 @@ import java.util.List;
 public class PartyController {
 
     private final PartyService partyService;
+    private final com.erp.inventory.config.PatchMerger patchMerger;
 
     @PostMapping
     public ResponseEntity<PartyResponse> create(@Valid @RequestBody PartyRequest request) {
@@ -26,6 +27,25 @@ public class PartyController {
     @PutMapping("/{id}")
     public ResponseEntity<PartyResponse> update(@PathVariable Long id, @Valid @RequestBody PartyRequest request) {
         return ResponseEntity.ok(partyService.update(id, request));
+    }
+
+
+
+    @PatchMapping("/{id}")
+
+
+    public ResponseEntity<PartyResponse> patch(@PathVariable Long id,
+
+
+            @org.springframework.web.bind.annotation.RequestBody com.fasterxml.jackson.databind.JsonNode patch) {
+
+
+        PartyRequest merged = patchMerger.merge(partyService.getById(id), PartyRequest.class, patch);
+
+
+        return ResponseEntity.ok(partyService.update(id, merged));
+
+
     }
 
     @GetMapping("/{id}")

@@ -17,6 +17,7 @@ import java.util.List;
 public class CategoryController {
 
     private final CategoryService categoryService;
+    private final com.erp.inventory.config.PatchMerger patchMerger;
 
     @PostMapping
     public ResponseEntity<CategoryResponse> create(@Valid @RequestBody CategoryRequest request) {
@@ -26,6 +27,25 @@ public class CategoryController {
     @PutMapping("/{id}")
     public ResponseEntity<CategoryResponse> update(@PathVariable Long id, @Valid @RequestBody CategoryRequest request) {
         return ResponseEntity.ok(categoryService.update(id, request));
+    }
+
+
+
+    @PatchMapping("/{id}")
+
+
+    public ResponseEntity<CategoryResponse> patch(@PathVariable Long id,
+
+
+            @org.springframework.web.bind.annotation.RequestBody com.fasterxml.jackson.databind.JsonNode patch) {
+
+
+        CategoryRequest merged = patchMerger.merge(categoryService.getById(id), CategoryRequest.class, patch);
+
+
+        return ResponseEntity.ok(categoryService.update(id, merged));
+
+
     }
 
     @GetMapping("/{id}")

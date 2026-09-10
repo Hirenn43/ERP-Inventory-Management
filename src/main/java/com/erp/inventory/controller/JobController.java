@@ -17,6 +17,7 @@ import java.util.List;
 public class JobController {
 
     private final JobService jobService;
+    private final com.erp.inventory.config.PatchMerger patchMerger;
 
     @PostMapping
     public ResponseEntity<JobResponse> create(@Valid @RequestBody JobRequest request) {
@@ -26,6 +27,25 @@ public class JobController {
     @PutMapping("/{id}")
     public ResponseEntity<JobResponse> update(@PathVariable Long id, @Valid @RequestBody JobRequest request) {
         return ResponseEntity.ok(jobService.update(id, request));
+    }
+
+
+
+    @PatchMapping("/{id}")
+
+
+    public ResponseEntity<JobResponse> patch(@PathVariable Long id,
+
+
+            @org.springframework.web.bind.annotation.RequestBody com.fasterxml.jackson.databind.JsonNode patch) {
+
+
+        JobRequest merged = patchMerger.merge(jobService.getById(id), JobRequest.class, patch);
+
+
+        return ResponseEntity.ok(jobService.update(id, merged));
+
+
     }
 
     @GetMapping("/{id}")

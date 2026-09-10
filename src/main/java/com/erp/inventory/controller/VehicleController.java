@@ -17,6 +17,7 @@ import java.util.List;
 public class VehicleController {
 
     private final VehicleService vehicleService;
+    private final com.erp.inventory.config.PatchMerger patchMerger;
 
     @PostMapping
     public ResponseEntity<VehicleResponse> create(@Valid @RequestBody VehicleRequest request) {
@@ -26,6 +27,25 @@ public class VehicleController {
     @PutMapping("/{id}")
     public ResponseEntity<VehicleResponse> update(@PathVariable Long id, @Valid @RequestBody VehicleRequest request) {
         return ResponseEntity.ok(vehicleService.update(id, request));
+    }
+
+
+
+    @PatchMapping("/{id}")
+
+
+    public ResponseEntity<VehicleResponse> patch(@PathVariable Long id,
+
+
+            @org.springframework.web.bind.annotation.RequestBody com.fasterxml.jackson.databind.JsonNode patch) {
+
+
+        VehicleRequest merged = patchMerger.merge(vehicleService.getById(id), VehicleRequest.class, patch);
+
+
+        return ResponseEntity.ok(vehicleService.update(id, merged));
+
+
     }
 
     @GetMapping("/{id}")

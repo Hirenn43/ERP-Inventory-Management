@@ -17,6 +17,7 @@ import java.util.List;
 public class AreaController {
 
     private final AreaService areaService;
+    private final com.erp.inventory.config.PatchMerger patchMerger;
 
     @PostMapping
     public ResponseEntity<AreaResponse> create(@Valid @RequestBody AreaRequest request) {
@@ -26,6 +27,25 @@ public class AreaController {
     @PutMapping("/{id}")
     public ResponseEntity<AreaResponse> update(@PathVariable Long id, @Valid @RequestBody AreaRequest request) {
         return ResponseEntity.ok(areaService.update(id, request));
+    }
+
+
+
+    @PatchMapping("/{id}")
+
+
+    public ResponseEntity<AreaResponse> patch(@PathVariable Long id,
+
+
+            @org.springframework.web.bind.annotation.RequestBody com.fasterxml.jackson.databind.JsonNode patch) {
+
+
+        AreaRequest merged = patchMerger.merge(areaService.getById(id), AreaRequest.class, patch);
+
+
+        return ResponseEntity.ok(areaService.update(id, merged));
+
+
     }
 
     @GetMapping("/{id}")

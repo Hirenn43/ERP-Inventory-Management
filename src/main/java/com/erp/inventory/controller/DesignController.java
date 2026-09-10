@@ -17,6 +17,7 @@ import java.util.List;
 public class DesignController {
 
     private final DesignService designService;
+    private final com.erp.inventory.config.PatchMerger patchMerger;
 
     @PostMapping
     public ResponseEntity<DesignResponse> create(@Valid @RequestBody DesignRequest request) {
@@ -26,6 +27,25 @@ public class DesignController {
     @PutMapping("/{id}")
     public ResponseEntity<DesignResponse> update(@PathVariable Long id, @Valid @RequestBody DesignRequest request) {
         return ResponseEntity.ok(designService.update(id, request));
+    }
+
+
+
+    @PatchMapping("/{id}")
+
+
+    public ResponseEntity<DesignResponse> patch(@PathVariable Long id,
+
+
+            @org.springframework.web.bind.annotation.RequestBody com.fasterxml.jackson.databind.JsonNode patch) {
+
+
+        DesignRequest merged = patchMerger.merge(designService.getById(id), DesignRequest.class, patch);
+
+
+        return ResponseEntity.ok(designService.update(id, merged));
+
+
     }
 
     @GetMapping("/{id}")

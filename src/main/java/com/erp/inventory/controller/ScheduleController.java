@@ -17,6 +17,7 @@ import java.util.List;
 public class ScheduleController {
 
     private final ScheduleService scheduleService;
+    private final com.erp.inventory.config.PatchMerger patchMerger;
 
     @PostMapping
     public ResponseEntity<ScheduleResponse> create(@Valid @RequestBody ScheduleRequest request) {
@@ -26,6 +27,25 @@ public class ScheduleController {
     @PutMapping("/{id}")
     public ResponseEntity<ScheduleResponse> update(@PathVariable Long id, @Valid @RequestBody ScheduleRequest request) {
         return ResponseEntity.ok(scheduleService.update(id, request));
+    }
+
+
+
+    @PatchMapping("/{id}")
+
+
+    public ResponseEntity<ScheduleResponse> patch(@PathVariable Long id,
+
+
+            @org.springframework.web.bind.annotation.RequestBody com.fasterxml.jackson.databind.JsonNode patch) {
+
+
+        ScheduleRequest merged = patchMerger.merge(scheduleService.getById(id), ScheduleRequest.class, patch);
+
+
+        return ResponseEntity.ok(scheduleService.update(id, merged));
+
+
     }
 
     @GetMapping("/{id}")

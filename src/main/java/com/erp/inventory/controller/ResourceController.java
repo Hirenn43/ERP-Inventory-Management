@@ -17,6 +17,7 @@ import java.util.List;
 public class ResourceController {
 
     private final ResourceService resourceService;
+    private final com.erp.inventory.config.PatchMerger patchMerger;
 
     @PostMapping
     public ResponseEntity<ResourceResponse> create(@Valid @RequestBody ResourceRequest request) {
@@ -26,6 +27,25 @@ public class ResourceController {
     @PutMapping("/{id}")
     public ResponseEntity<ResourceResponse> update(@PathVariable Long id, @Valid @RequestBody ResourceRequest request) {
         return ResponseEntity.ok(resourceService.update(id, request));
+    }
+
+
+
+    @PatchMapping("/{id}")
+
+
+    public ResponseEntity<ResourceResponse> patch(@PathVariable Long id,
+
+
+            @org.springframework.web.bind.annotation.RequestBody com.fasterxml.jackson.databind.JsonNode patch) {
+
+
+        ResourceRequest merged = patchMerger.merge(resourceService.getById(id), ResourceRequest.class, patch);
+
+
+        return ResponseEntity.ok(resourceService.update(id, merged));
+
+
     }
 
     @GetMapping("/{id}")

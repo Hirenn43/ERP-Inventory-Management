@@ -17,6 +17,7 @@ import java.util.List;
 public class BrokerController {
 
     private final BrokerService brokerService;
+    private final com.erp.inventory.config.PatchMerger patchMerger;
 
     @PostMapping
     public ResponseEntity<BrokerResponse> create(@Valid @RequestBody BrokerRequest request) {
@@ -26,6 +27,25 @@ public class BrokerController {
     @PutMapping("/{id}")
     public ResponseEntity<BrokerResponse> update(@PathVariable Long id, @Valid @RequestBody BrokerRequest request) {
         return ResponseEntity.ok(brokerService.update(id, request));
+    }
+
+
+
+    @PatchMapping("/{id}")
+
+
+    public ResponseEntity<BrokerResponse> patch(@PathVariable Long id,
+
+
+            @org.springframework.web.bind.annotation.RequestBody com.fasterxml.jackson.databind.JsonNode patch) {
+
+
+        BrokerRequest merged = patchMerger.merge(brokerService.getById(id), BrokerRequest.class, patch);
+
+
+        return ResponseEntity.ok(brokerService.update(id, merged));
+
+
     }
 
     @GetMapping("/{id}")
