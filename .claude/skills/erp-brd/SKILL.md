@@ -14,8 +14,8 @@ Two Claude artifacts are the source of truth for scope and progress in every `ER
 
 ## At session start (do this once, quietly)
 
-1. Read the BRD doc via the Docs `read` tool (load it with ToolSearch `select:mcp__1a59c906-04da-521d-bda7-7f71b9f9e01c__read` if deferred). Read the tab's contents only when the task touches requirements; the doc lists tabs first.
-2. Query the tracker: `ArtifactData` action `list` on collection `status` (page with `query.limit` and `cursor`). Each doc id is a requirement ID (e.g. `FR-IN-01a`), data is `{s: "done"|"partial"|"pending", note?, at}`. A missing doc means the baseline in the tracker page applies; the baseline list is in the `ITEMS` array of the page HTML (`Artifact` read).
+1. Read the BRD doc via the Docs `read` tool (load it with ToolSearch `select:mcp__1a59c906-04da-521d-bda7-7f71b9f9e01c__read` if deferred). The doc lists tabs first, then the tab's content node. The node is large (~150K characters) and may be saved to a file: grep it for the requirement IDs you need instead of reading it whole. Tracker-only IDs (e.g. a split like `FR-MS-02b`) may not appear verbatim in the BRD; match on the parent ID (`FR-MS-02`).
+2. Query the tracker: load `ArtifactData` with ToolSearch `select:ArtifactData` (it is deferred), then `list` on collection `status` (page with `query.limit` and `cursor`). If `ArtifactData` is not available in the session, say so and use the baseline `ITEMS` array from an `Artifact` read of the tracker page, marked as baseline (unconfirmed live status). Do not invent other tool names. Each doc id is a requirement ID (e.g. `FR-IN-01a`), data is `{s: "done"|"partial"|"pending", note?, at}`. A missing doc means the baseline in the tracker page applies; the baseline list is in the `ITEMS` array of the page HTML (`Artifact` read).
 3. Tell the user in one or two lines which BRD requirement IDs and milestone (M0 to M10, Later) the current task maps to, and their current status. Skip this if the task is unrelated to product scope (tooling, formatting, a typo).
 
 ## While working
